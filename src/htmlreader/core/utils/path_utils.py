@@ -32,4 +32,4 @@ def ensure_dir(path: Path) -> None:
         None
     """
     if not path.exists():
-        path.mkdir(parents=True)
+        path.mkdir(parents=True, exist_ok=True)

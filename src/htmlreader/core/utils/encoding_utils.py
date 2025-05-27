@@ -18,6 +18,7 @@ def detect_encoding(path: Path) -> str:
     Returns:
         str: Nome da codificação detectada, ou 'utf-8' se não detectado.
     """
-    raw = path.open("rb").read(1024)
+    with path.open("rb") as file:
+        raw = file.read(1024)
     result = detect(raw)
     return result["encoding"] or "utf-8"
