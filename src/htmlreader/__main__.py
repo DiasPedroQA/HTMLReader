@@ -1,8 +1,18 @@
-import argparse
-from htmlreader.backend.cli import run_cli
-from htmlreader.frontend.gui import run_gui
+"""
+Ponto de entrada do HTMLReader.
 
-def main():
+Permite escolher entre interface CLI ou GUI via argumento de linha de comando.
+"""
+
+import argparse
+from htmlreader.interfaces.cli.cli import run_cli
+from htmlreader.interfaces.gui.gui import run_gui
+
+
+def main() -> None:
+    """
+    Inicializa o HTMLReader no modo escolhido pelo usuário (CLI ou GUI).
+    """
     parser = argparse.ArgumentParser(
         description="HTMLReader – escolha modo CLI ou GUI",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -19,6 +29,7 @@ def main():
         run_cli()
     else:
         run_gui()
+
 
 if __name__ == "__main__":
     main()

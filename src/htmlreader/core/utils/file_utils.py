@@ -18,16 +18,3 @@ def is_text_file(path: Path) -> bool:
         bool: True se o arquivo for .txt, .md ou .html, caso contrário False.
     """
     return path.suffix.lower() in [".txt", ".md", ".html"]
-
-
-def read_binary(path: Path) -> bytes:
-    """
-    Lê o conteúdo de um arquivo em modo binário.
-
-    Args:
-        path (Path): Caminho para o arquivo.
-
-    Returns:
-        bytes: Conteúdo do arquivo em bytes.
-    """
-    return path.read_bytes()

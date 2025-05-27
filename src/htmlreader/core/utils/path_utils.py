@@ -31,5 +31,8 @@ def ensure_dir(path: Path) -> None:
     Returns:
         None
     """
-    if not path.exists():
+    if path.exists():
+        if not path.is_dir():
+            raise FileExistsError(f"O caminho '{path}' existe e não é um diretório.")
+    else:
         path.mkdir(parents=True, exist_ok=True)
