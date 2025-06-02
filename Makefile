@@ -19,15 +19,15 @@ install: venv
 	.venv/bin/pip install -r requirements-dev.txt || true
 
 lint:
-	.venv/bin/pylint src/htmlreader || true
-	.venv/bin/flake8 src/htmlreader || true
+	.venv/bin/pylint src/htmlreader src/tests || true
+	.venv/bin/flake8 src/htmlreader src/tests || true
 
 format:
-	.venv/bin/black src/
-	.venv/bin/isort src/
+	.venv/bin/black src/ src/tests/
+	.venv/bin/isort src/ src/tests/
 
 test:
-	.venv/bin/pytest --maxfail=1 --disable-warnings -v
+	.venv/bin/pytest src/tests --maxfail=1 --disable-warnings -v
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -35,5 +35,5 @@ clean:
 	rm -rf .pytest_cache .mypy_cache .coverage htmlcov
 
 run:
-	.venv/bin/python src/main.py
+	.venv/bin/python -m htmlreader
 

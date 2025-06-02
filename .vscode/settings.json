@@ -10,6 +10,7 @@
         "Cython",
         "diretorio",
         "dmypy",
+        "docstrings",
         "dotenv",
         "extensao",
         "extensoes",
@@ -43,7 +44,8 @@
         "sugestao",
         "sysname",
         "tkinter",
-        "Tkinter"
+        "Tkinter",
+        "uvicorn"
     ],
     "python.testing.pytestArgs": [
         "app"

@@ -1,54 +1,50 @@
 # HTMLReader
 
-Aplicação para leitura e análise de HTML com interface Tkinter e parsing com BeautifulSoup.
+O HTMLReader é uma aplicação modular para leitura, análise e processamento de arquivos HTML e outros formatos de texto, com suporte a interface gráfica (Tkinter), linha de comando (CLI) e API (FastAPI). O projeto foi pensado para ser didático, organizado e fácil de evoluir, tanto para uso quanto para contribuições.
 
-## Estrutura
+## Estrutura do Projeto
 
-- `app/frontend`: Interface gráfica
-- `app/backend`: Lógica e tratamento de HTML
-- `tests`: Testes automatizados
-- `logs`: Armazenamento de logs de execução
-- `.github/workflows`: Integração contínua
+A estrutura do HTMLReader foi desenhada para separar claramente responsabilidades e facilitar testes, manutenção e extensibilidade:
+
+- **src/htmlreader/core**: Lógica central do sistema, incluindo modelos (schemas Pydantic), serviços de processamento e utilitários.
+  - **models**: Schemas e validações para arquivos, pastas e operações.
+  - **services**: Funções de processamento, leitura, listagem e prévia de arquivos.
+  - **utils**: Funções auxiliares para manipulação de caminhos, sistema e arquivos.
+- **src/htmlreader/interfaces**: Pontos de entrada para interação do usuário.
+  - **gui**: Interface gráfica baseada em Tkinter.
+  - **cli**: Interface de linha de comando para uso via terminal.
+  - **api**: Interface de API REST com FastAPI, incluindo rotas para operações de visor e processamento.
+- **src/tests**: Testes automatizados para todos os módulos principais, garantindo robustez e exemplos de uso.
+- **Makefile**: Comandos para facilitar instalação, testes, lint, formatação e execução.
+- **requirements.txt / requirements-dev.txt**: Dependências de produção e desenvolvimento.
 
 ## Como rodar os testes
 
 ```bash
-pytest
+make test
+```
+
+ou diretamente:
+
+```bash
+pytest src/tests
 ```
 
 ## Como usar o HTMLReader
 
-O HTMLReader foi projetado para facilitar a leitura, análise e manipulação de arquivos HTML de forma intuitiva, tanto para usuários iniciantes quanto avançados. A interface gráfica permite abrir arquivos, visualizar seu conteúdo e aplicar análises automáticas, como contagem de palavras, linhas e extração de informações.
+O HTMLReader pode ser utilizado de três formas principais:
 
-### Passos básicos de uso
-
-1. **Abra o aplicativo**: Execute o script principal da interface gráfica.
-2. **Selecione um arquivo HTML**: Use o navegador de arquivos para escolher o arquivo desejado.
-3. **Visualize e analise**: O conteúdo será exibido e você poderá aplicar funções de análise, como contagem de palavras ou linhas.
-4. **Salve ou exporte resultados**: Caso deseje, salve o conteúdo processado ou exporte relatórios.
-
-### Estrutura do Projeto
-
-O projeto está organizado para separar responsabilidades e facilitar a manutenção:
-
-#### Estruturas Locais
-
-- **Frontend (`app/frontend`)**: Contém todos os arquivos relacionados à interface gráfica, como telas, widgets e controladores de eventos.
-- **Backend (`app/backend`)**: Responsável pela lógica de negócio, manipulação de arquivos, parsing de HTML e serviços de análise.
-- **Tests (`tests`)**: Scripts de teste automatizado para garantir a qualidade e funcionamento dos módulos.
-
-#### Estruturas Globais
-
-- **Logs (`logs`)**: Diretório para armazenar logs de execução, úteis para depuração e auditoria.
-- **Workflows (`.github/workflows`)**: Configurações de integração contínua para automação de testes e deploy.
-- **README.md**: Este arquivo, com instruções de uso, estrutura e informações gerais do projeto.
+- **GUI (Tkinter)**: Execute `make run` ou rode o módulo principal para abrir a interface gráfica, onde é possível selecionar pastas, visualizar arquivos e obter prévias de conteúdo.
+- **CLI**: Use `python -m htmlreader.interfaces.cli.main_cli visor <caminho>` para visualizar arquivos/pastas ou `processar <arquivos>` para processar arquivos em lote.
+- **API**: Suba a API com FastAPI (`uvicorn htmlreader.interfaces.api.main_api:app`) e acesse os endpoints REST para integração com outros sistemas ou automações.
 
 ### Recomendações
 
 - Sempre utilize ambientes virtuais para instalar dependências.
-- Consulte os testes automatizados para exemplos de uso dos módulos.
+- Consulte os testes automatizados para exemplos práticos de uso dos módulos.
+- Leia os docstrings dos módulos para entender as funções e modelos disponíveis.
 - Para contribuir, siga o padrão de organização e documentação do projeto.
 
 ---
 
-Com essa estrutura, o HTMLReader busca ser acessível, modular e fácil de evoluir, atendendo tanto a quem deseja apenas usar quanto a quem pretende contribuir com o desenvolvimento.
+O HTMLReader é um projeto pensado para ser acessível, modular e didático, servindo tanto para aprendizado quanto para aplicações reais de manipulação e análise de arquivos.

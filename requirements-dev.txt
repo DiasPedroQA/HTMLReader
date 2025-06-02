@@ -10,7 +10,7 @@ python-dotenv==0.21.0   # Gerenciamento de variáveis (.env)
 # (Testes, formatação, etc.)
 pytest==8.3.5           # Testes
 pytest-cov==6.1.1       # Cobertura de testes
-black==23.0             # Formatação automática
+black==24.3.0           # Formatação automática
 isort==5.0              # Organização de imports
 mypy==1.0               # Checagem de tipos
 ipdb==0.13.0            # Debugging interativo

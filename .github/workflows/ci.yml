@@ -22,10 +22,10 @@ jobs:
           pip-sync requirements-dev.txt
 
       - name: Lint (flake8)
-        run: flake8 app/ tests/
+        run: flake8 src/htmlreader src/tests
 
       - name: Security Check (bandit)
-        run: bandit -r app/
+        run: bandit -r src/htmlreader
 
       - name: Run Tests with Coverage
-        run: pytest --cov=app tests/
+        run: pytest --cov=src/htmlreader src/tests

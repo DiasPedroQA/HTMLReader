@@ -1,45 +1,62 @@
 #!/bin/bash
 
+# Script para refatorar e organizar a estrutura do projeto HTMLReader
+
 set -e
 
-echo "🔄 Navegando para o diretório do projeto..."
-cd "$(dirname "$0")"
+echo "Criando estrutura de diretórios..."
 
-echo "📁 Criando diretórios das interfaces (CLI e GUI)..."
-mkdir -p src/htmlreader/interfaces/{cli,gui,api}
+mkdir -p src/htmlreader/core/models
+mkdir -p src/htmlreader/core/services
+mkdir -p src/htmlreader/core/utils
+mkdir -p src/htmlreader/interfaces/api/routes
+mkdir -p src/htmlreader/interfaces/cli
+mkdir -p src/htmlreader/interfaces/gui
+mkdir -p src/tests/core/models
+mkdir -p src/tests/core/services
+mkdir -p src/tests/core/utils
 
-echo "📁 Movendo arquivos existentes, se houver..."
-[ -f src/htmlreader/backend/cli.py ] && mv src/htmlreader/backend/cli.py src/htmlreader/interfaces/cli/
-[ -f src/htmlreader/frontend/gui.py ] && mv src/htmlreader/frontend/gui.py src/htmlreader/interfaces/gui/
+echo "Movendo arquivos para a nova estrutura..."
 
-echo "🧹 Limpando diretórios antigos se estiverem vazios..."
-[ -d src/htmlreader/backend ] && rmdir --ignore-fail-on-non-empty src/htmlreader/backend
-[ -d src/htmlreader/frontend ] && rmdir --ignore-fail-on-non-empty src/htmlreader/frontend
+# Core models
+mv src/htmlreader/core/models/__init__.py src/htmlreader/core/models/__init__.py 2>/dev/null || true
+mv src/htmlreader/core/models/exceptions.py src/htmlreader/core/models/exceptions.py 2>/dev/null || true
+mv src/htmlreader/core/models/processador_models.py src/htmlreader/core/models/processador_models.py 2>/dev/null || true
+mv src/htmlreader/core/models/visor_models.py src/htmlreader/core/models/visor_models.py 2>/dev/null || true
 
-echo "📁 Criando estrutura de core e interfaces, se necessário..."
-mkdir -p src/htmlreader/core/{models,services,utils}
-mkdir -p src/htmlreader/interfaces/{cli,gui,api}
-mkdir -p src/tests/core/{models,services,utils}
-mkdir -p src/tests/interfaces/{cli,gui,api}
+# Core services
+mv src/htmlreader/core/services/__init__.py src/htmlreader/core/services/__init__.py 2>/dev/null || true
+mv src/htmlreader/core/services/processador_service.py src/htmlreader/core/services/processador_service.py 2>/dev/null || true
+mv src/htmlreader/core/services/visor_service.py src/htmlreader/core/services/visor_service.py 2>/dev/null || true
 
-echo "📄 Criando arquivos __init__.py..."
-touch src/htmlreader/__init__.py
-touch src/htmlreader/core/__init__.py
-touch src/htmlreader/core/models/__init__.py
-touch src/htmlreader/core/services/__init__.py
-touch src/htmlreader/core/utils/__init__.py
-touch src/htmlreader/interfaces/__init__.py
-touch src/htmlreader/interfaces/cli/__init__.py
-touch src/htmlreader/interfaces/gui/__init__.py
-touch src/htmlreader/interfaces/api/__init__.py
-touch src/tests/__init__.py
-touch src/tests/core/__init__.py
-touch src/tests/core/models/__init__.py
-touch src/tests/core/services/__init__.py
-touch src/tests/core/utils/__init__.py
-touch src/tests/interfaces/__init__.py
-touch src/tests/interfaces/cli/__init__.py
-touch src/tests/interfaces/gui/__init__.py
-touch src/tests/interfaces/api/__init__.py
+# Core utils
+mv src/htmlreader/core/utils/__init__.py src/htmlreader/core/utils/__init__.py 2>/dev/null || true
+mv src/htmlreader/core/utils/system_utils.py src/htmlreader/core/utils/system_utils.py 2>/dev/null || true
 
-echo "✅ Estrutura reorganizada com sucesso."
+# Interfaces API
+mv src/htmlreader/interfaces/api/__init__.py src/htmlreader/interfaces/api/__init__.py 2>/dev/null || true
+mv src/htmlreader/interfaces/api/main_api.py src/htmlreader/interfaces/api/main_api.py 2>/dev/null || true
+mv src/htmlreader/interfaces/api/routes/__init__.py src/htmlreader/interfaces/api/routes/__init__.py 2>/dev/null || true
+mv src/htmlreader/interfaces/api/routes/processador_routes.py src/htmlreader/interfaces/api/routes/processador_routes.py 2>/dev/null || true
+mv src/htmlreader/interfaces/api/routes/visor_routes.py src/htmlreader/interfaces/api/routes/visor_routes.py 2>/dev/null || true
+
+# Interfaces CLI
+mv src/htmlreader/interfaces/cli/__init__.py src/htmlreader/interfaces/cli/__init__.py 2>/dev/null || true
+mv src/htmlreader/interfaces/cli/main_cli.py src/htmlreader/interfaces/cli/main_cli.py 2>/dev/null || true
+
+# Interfaces GUI
+mv src/htmlreader/interfaces/gui/__init__.py src/htmlreader/interfaces/gui/__init__.py 2>/dev/null || true
+mv src/htmlreader/interfaces/gui/main_gui.py src/htmlreader/interfaces/gui/main_gui.py 2>/dev/null || true
+
+# Testes
+mv src/tests/core/models/test_directory_model.py src/tests/core/models/test_directory_model.py 2>/dev/null || true
+mv src/tests/core/models/test_file_model.py src/tests/core/models/test_file_model.py 2>/dev/null || true
+mv src/tests/core/services/test_text_analysis_service.py src/tests/core/services/test_text_analysis_service.py 2>/dev/null || true
+mv src/tests/core/services/test_text_file_service.py src/tests/core/services/test_text_file_service.py 2>/dev/null || true
+mv src/tests/core/utils/test_encoding_utils.py src/tests/core/utils/test_encoding_utils.py 2>/dev/null || true
+mv src/tests/core/utils/test_file_utils.py src/tests/core/utils/test_file_utils.py 2>/dev/null || true
+mv src/tests/core/utils/test_path_utils.py src/tests/core/utils/test_path_utils.py 2>/dev/null || true
+mv src/tests/core/utils/test_system_utils.py src/tests/core/utils/test_system_utils.py 2>/dev/null || true
+
+echo "Estrutura refatorada com sucesso!"
+
