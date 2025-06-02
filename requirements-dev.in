@@ -1,0 +1,9 @@
+-r requirements.in
+
+bandit
+coverage
+fastapi
+flake8
+pydantic
+pytest
+pytest-cov
