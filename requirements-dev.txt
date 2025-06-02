@@ -1,7 +1,9 @@
 # === Dependências Principais ===
 # (O que seu projeto PRECISA para rodar)
 beautifulsoup4==4.13.4  # Parsing HTML
-tk==0.1.0               # Interface Tkinter (frontend)
+# Atenção: Tkinter já faz parte da biblioteca padrão do Python (tkinter).
+# O pacote 'tk' do PyPI (tk==0.1.0) não é necessário e pode causar confusão.
+# Remova esta linha se você usa apenas o Tkinter padrão.
 python-dotenv==0.21.0   # Gerenciamento de variáveis (.env)
 
 # === Ferramentas de Desenvolvimento ===
