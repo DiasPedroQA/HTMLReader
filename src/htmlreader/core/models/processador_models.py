@@ -8,7 +8,7 @@ e lotes de arquivos.
 """
 
 from pathlib import Path
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class CaminhoArquivo(BaseModel):
@@ -21,7 +21,8 @@ class CaminhoArquivo(BaseModel):
 
     path: Path
 
-    @validator("path")
+    @field_validator("path")
+    @classmethod
     def deve_existir_e_ser_arquivo(cls, v: Path) -> Path:
         """
         Valida se o caminho existe e é um arquivo.

@@ -1,3 +1,5 @@
+# pylint: disable=import-error
+
 """
 Testes para os modelos de processamento do HTMLReader.
 

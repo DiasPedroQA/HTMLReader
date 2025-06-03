@@ -9,7 +9,7 @@ listas de itens e prévias de arquivos.
 
 from pathlib import Path
 from typing import Literal
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class CaminhoEntrada(BaseModel):
@@ -22,7 +22,8 @@ class CaminhoEntrada(BaseModel):
 
     path: Path
 
-    @validator("path")
+    @field_validator("path")
+    @classmethod
     def path_deve_existir(cls, v: Path) -> Path:
         """
         Valida se o caminho existe.

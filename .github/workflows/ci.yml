@@ -36,7 +36,7 @@ jobs:
         run: bandit -r src/htmlreader
 
       - name: Testes com cobertura
-        run: pytest --cov=src/htmlreader src/tests --maxfail=1 --disable-warnings -v
+        run: pytest --cov=htmlreader src/tests --maxfail=1 --disable-warnings -v
 
       - name: Gerar relatório de cobertura
         run: coverage xml
