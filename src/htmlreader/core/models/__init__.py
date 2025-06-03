@@ -15,8 +15,6 @@ from .processador_models import (
     CaminhoArquivo,
     ResultadoProcessamento,
     LoteDeArquivos,
-)
-from .exceptions import (
     CaminhoInvalidoError,
     ArquivoNaoSuportadoError,
     ErroDeProcessamento,

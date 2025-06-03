@@ -12,6 +12,7 @@
         "dmypy",
         "docstrings",
         "dotenv",
+        "excecoes",
         "extensao",
         "extensoes",
         "fastapi",
@@ -66,5 +67,6 @@
         "**/Thumbs.db": true
     },
     "makefile.makefilePath": "Makefile",
-    "makefile.buildLog": "logs"
+    "makefile.buildLog": "logs",
+    "python.pythonPath": ".venv/bin/python3.12"
 }

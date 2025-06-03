@@ -9,8 +9,8 @@ from pathlib import Path
 from src.htmlreader.core.models.processador_models import (
     ResultadoProcessamento,
     LoteDeArquivos,
+    ErroDeProcessamento
 )
-from src.htmlreader.core.models.exceptions import ErroDeProcessamento
 
 
 def processar_arquivo(

@@ -6,7 +6,6 @@ e lotes de arquivos.
 """
 
 from pathlib import Path
-from typing import List
 from pydantic import BaseModel, validator
 
 
@@ -21,7 +20,7 @@ class CaminhoArquivo(BaseModel):
     path: Path
 
     @validator("path")
-    def deve_existir_e_ser_arquivo(self, v: Path):
+    def deve_existir_e_ser_arquivo(self, v: Path) -> Path:
         """
         Valida se o caminho existe e é um arquivo.
 
@@ -57,13 +56,54 @@ class ResultadoProcessamento(BaseModel):
     sucesso: bool
     mensagem: str
 
+    def __str__(self) -> str:
+        """
+        Retorna uma representação legível do resultado do processamento.
+        """
+        status = "Sucesso" if self.sucesso else "Falha"
+        return f"{status}: {self.entrada} → {self.saida} | {self.mensagem}"
+
 
 class LoteDeArquivos(BaseModel):
     """
     Modelo que representa um lote de arquivos para processamento.
 
     Attributes:
-        arquivos (List[CaminhoArquivo]): Lista de caminhos de arquivos.
+        arquivos (list[CaminhoArquivo]): Lista de caminhos de arquivos.
     """
 
-    arquivos: List[CaminhoArquivo]
+    arquivos: list[CaminhoArquivo]
+
+    def __len__(self) -> int:
+        """
+        Retorna a quantidade de arquivos no lote.
+        """
+        return len(self.arquivos)
+
+
+# Exceções customizadas
+class CaminhoInvalidoError(Exception):
+    """
+    Exceção para indicar que um caminho fornecido é inválido.
+    """
+
+    def __init__(self, mensagem: str = "Caminho inválido."):
+        super().__init__(mensagem)
+
+
+class ArquivoNaoSuportadoError(Exception):
+    """
+    Exceção para indicar que o arquivo fornecido não é suportado pelo sistema.
+    """
+
+    def __init__(self, mensagem: str = "Arquivo não suportado."):
+        super().__init__(mensagem)
+
+
+class ErroDeProcessamento(Exception):
+    """
+    Exceção para indicar erro durante o processamento de arquivos.
+    """
+
+    def __init__(self, mensagem: str = "Erro durante o processamento do arquivo."):
+        super().__init__(mensagem)
