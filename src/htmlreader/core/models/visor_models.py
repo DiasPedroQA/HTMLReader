@@ -1,3 +1,5 @@
+# pylint: disable=no-self-argument
+
 """
 Modelos Pydantic para o visor de arquivos e pastas do HTMLReader.
 

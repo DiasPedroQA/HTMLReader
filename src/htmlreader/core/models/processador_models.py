@@ -1,3 +1,5 @@
+# pylint: disable=no-self-argument
+
 """
 Modelos Pydantic para processamento de arquivos no HTMLReader.
 

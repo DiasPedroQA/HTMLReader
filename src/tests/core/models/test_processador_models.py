@@ -8,7 +8,7 @@ e as exceções customizadas do processador.
 
 from pathlib import Path
 import pytest
-from htmlreader.core.models.processador_models import (
+from src.htmlreader.core.models.processador_models import (
     CaminhoArquivo,
     ResultadoProcessamento,
     LoteDeArquivos,
