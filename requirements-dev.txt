@@ -7,9 +7,9 @@ beautifulsoup4==4.13.4  # Parsing HTML
 python-dotenv==0.21.0   # Gerenciamento de variáveis (.env)
 
 # === Ferramentas de Desenvolvimento ===
-# (Testes, formatação, etc.)
 pytest==8.3.5           # Testes
 pytest-cov==6.1.1       # Cobertura de testes
+pydantic==2.6.2         # Validação de dados
 black==24.3.0           # Formatação automática
 isort==5.0              # Organização de imports
 mypy==1.0               # Checagem de tipos
