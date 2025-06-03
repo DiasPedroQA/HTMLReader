@@ -20,7 +20,7 @@ class CaminhoArquivo(BaseModel):
     path: Path
 
     @validator("path")
-    def deve_existir_e_ser_arquivo(self, v: Path) -> Path:
+    def deve_existir_e_ser_arquivo(cls, v: Path) -> Path:
         """
         Valida se o caminho existe e é um arquivo.
 

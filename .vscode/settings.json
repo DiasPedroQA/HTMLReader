@@ -32,6 +32,7 @@
         "pydantic",
         "pypackages",
         "pypirc",
+        "PYTHONPATH",
         "pytype",
         "ropeproject",
         "saida",

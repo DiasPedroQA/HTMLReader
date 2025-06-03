@@ -27,7 +27,7 @@ format:
 	.venv/bin/isort src/ src/tests/
 
 test:
-	.venv/bin/pytest src/tests --maxfail=1 --disable-warnings -v
+	PYTHONPATH=src .venv/bin/pytest src/tests --maxfail=1 --disable-warnings -v
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

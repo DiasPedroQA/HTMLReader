@@ -21,7 +21,7 @@ class CaminhoEntrada(BaseModel):
     path: Path
 
     @validator("path")
-    def path_deve_existir(self, v: Path):
+    def path_deve_existir(cls, v: Path) -> Path:
         """
         Valida se o caminho existe.
 
