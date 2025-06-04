@@ -6,7 +6,7 @@ Inclui funções para listar o conteúdo de diretórios e obter prévias de arqu
 
 from pathlib import Path
 
-from src.htmlreader.core.models.visor_models import (
+from htmlreader.core.models.visor_models import (
     FiltroVisor,
     ItemDePasta,
     ListaDeItens,

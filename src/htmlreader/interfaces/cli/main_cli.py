@@ -8,9 +8,9 @@ utilizando os serviços de visor e processador.
 import argparse
 from pathlib import Path
 
-from src.htmlreader.core.models.processador_models import LoteDeArquivos
-from src.htmlreader.core.models.visor_models import FiltroVisor
-from src.htmlreader.core.services import processador_service, visor_service
+from htmlreader.core.models.processador_models import LoteDeArquivos
+from htmlreader.core.models.visor_models import FiltroVisor
+from htmlreader.core.services import processador_service, visor_service
 
 
 def main():

@@ -4,10 +4,15 @@ Rotas da API para processamento de arquivos no HTMLReader.
 Inclui endpoints para processar um único arquivo ou um lote de arquivos,
 retornando os resultados do processamento.
 """
+
 from fastapi import APIRouter
 
-from src.htmlreader.core.models.processador_models import CaminhoArquivo, LoteDeArquivos, ResultadoProcessamento
-from src.htmlreader.core.services import processador_service
+from htmlreader.core.models.processador_models import (
+    CaminhoArquivo,
+    LoteDeArquivos,
+    ResultadoProcessamento,
+)
+from htmlreader.core.services import processador_service
 
 router = APIRouter()
 

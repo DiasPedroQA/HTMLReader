@@ -7,7 +7,7 @@ expondo endpoints para manipulação de arquivos e pastas.
 
 from fastapi import FastAPI
 
-from .routes import processador_routes, visor_routes
+from htmlreader.interfaces.api.routes import processador_routes, visor_routes
 
 app = FastAPI(title="HTMLReader API")
 
