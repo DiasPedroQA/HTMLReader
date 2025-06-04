@@ -6,16 +6,11 @@ Testes para os modelos do visor do HTMLReader.
 Este módulo testa a validação de caminhos, filtros, itens de pasta,
 listas de itens e prévias de arquivos.
 """
-
 from pathlib import Path
+
 import pytest
-from htmlreader.core.models.visor_models import (
-    CaminhoEntrada,
-    FiltroVisor,
-    ItemDePasta,
-    ListaDeItens,
-    PreviaArquivo,
-)
+
+from htmlreader.core.models.visor_models import CaminhoEntrada, FiltroVisor, ItemDePasta, ListaDeItens, PreviaArquivo
 
 
 def test_caminho_entrada_valido(tmp_path: Path) -> None:

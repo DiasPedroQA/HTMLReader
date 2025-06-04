@@ -6,8 +6,8 @@ Modelos Pydantic para processamento de arquivos no HTMLReader.
 Define schemas para validação de caminhos de arquivos, resultados de processamento
 e lotes de arquivos.
 """
-
 from pathlib import Path
+
 from pydantic import BaseModel, field_validator
 
 

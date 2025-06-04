@@ -15,8 +15,12 @@ venv:
 
 install: venv
 	.venv/bin/pip install --upgrade pip
-	.venv/bin/pip install -r requirements.txt
-	.venv/bin/pip install -r requirements-dev.txt || true
+	@if [ -f requirements.txt ]; then \
+		.venv/bin/pip install -r requirements.txt; \
+	fi
+	@if [ -f requirements-dev.txt ]; then \
+		.venv/bin/pip install -r requirements-dev.txt; \
+	fi
 
 lint:
 	.venv/bin/pylint src/htmlreader src/tests || true
@@ -35,7 +39,10 @@ clean:
 	rm -rf .pytest_cache .mypy_cache .coverage htmlcov
 
 run:
-	.venv/bin/python -m htmlreader
+	PYTHONPATH=src .venv/bin/python -m htmlreader
 
 coverage-html:
 	PYTHONPATH=src .venv/bin/pytest --cov=htmlreader src/tests --cov-report=html
+
+all: clean venv install lint format test coverage-html
+	@echo "Pipeline completa executada com sucesso!"

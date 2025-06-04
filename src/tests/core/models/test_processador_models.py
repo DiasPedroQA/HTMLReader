@@ -7,16 +7,17 @@ Este módulo testa a validação de caminhos,
 o funcionamento dos modelos de resultado e lote,
 e as exceções customizadas do processador.
 """
-
 from pathlib import Path
+
 import pytest
+
 from htmlreader.core.models.processador_models import (
-    CaminhoArquivo,
-    ResultadoProcessamento,
-    LoteDeArquivos,
-    CaminhoInvalidoError,
     ArquivoNaoSuportadoError,
+    CaminhoArquivo,
+    CaminhoInvalidoError,
     ErroDeProcessamento,
+    LoteDeArquivos,
+    ResultadoProcessamento,
 )
 
 
@@ -45,13 +46,9 @@ def test_resultado_processamento_str(tmp_path: Path) -> None:
     """
     entrada = tmp_path / "in.txt"
     saida = tmp_path / "out.txt"
-    res = ResultadoProcessamento(
-        entrada=entrada, saida=saida, sucesso=True, mensagem="OK"
-    )
+    res = ResultadoProcessamento(entrada=entrada, saida=saida, sucesso=True, mensagem="OK")
     assert "Sucesso" in str(res)
-    res2 = ResultadoProcessamento(
-        entrada=entrada, saida=saida, sucesso=False, mensagem="Falha"
-    )
+    res2 = ResultadoProcessamento(entrada=entrada, saida=saida, sucesso=False, mensagem="Falha")
     assert "Falha" in str(res2)
 
 
@@ -63,9 +60,7 @@ def test_lote_de_arquivos_len(tmp_path: Path) -> None:
     file2 = tmp_path / "b.txt"
     file1.write_text("1")
     file2.write_text("2")
-    lote = LoteDeArquivos(
-        arquivos=[CaminhoArquivo(path=file1), CaminhoArquivo(path=file2)]
-    )
+    lote = LoteDeArquivos(arquivos=[CaminhoArquivo(path=file1), CaminhoArquivo(path=file2)])
     assert len(lote) == 2
 
 

@@ -7,9 +7,10 @@ utilizando os serviços de visor e processador.
 
 import argparse
 from pathlib import Path
-from src.htmlreader.core.services import visor_service, processador_service
-from src.htmlreader.core.models.visor_models import FiltroVisor
+
 from src.htmlreader.core.models.processador_models import LoteDeArquivos
+from src.htmlreader.core.models.visor_models import FiltroVisor
+from src.htmlreader.core.services import processador_service, visor_service
 
 
 def main():

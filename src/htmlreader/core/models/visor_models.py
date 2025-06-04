@@ -6,9 +6,9 @@ Modelos Pydantic para o visor de arquivos e pastas do HTMLReader.
 Define schemas para validação de caminhos, filtros, itens de pasta,
 listas de itens e prévias de arquivos.
 """
-
 from pathlib import Path
 from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
 
 

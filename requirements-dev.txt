@@ -16,6 +16,7 @@ mypy==1.0               # Checagem de tipos
 ipdb==0.13.0            # Debugging interativo
 flake8==7.2.0           # Linter (opcional)
 bandit==1.8.3           # Segurança (opcional)
+toml==0.10.2            # Manipulação de arquivos TOML
 
 # === Extras (se necessário) ===
 # requests==2.0          # HTTP (se usar API externa)

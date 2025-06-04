@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '40 17 * * 3'  # Executa semanalmente às 17:40 (UTC) nas quartas-feiras
+
+jobs:
+  lint:
+    name: Lint (flake8 e pylint)
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências de desenvolvimento
+        run: |
+          pip install pip-tools
+          pip-sync requirements-dev.txt
+
+      - name: Instalar pacote em modo editável
+        run: pip install -e .
+
+      - name: Rodar flake8
+        run: flake8 src/htmlreader src/tests
+
+      - name: Rodar pylint
+        run: pylint src/htmlreader || true
+
+  test:
+    name: Testes com cobertura
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      PYTHONPATH: src
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências de desenvolvimento
+        run: |
+          pip install pip-tools
+          pip-sync requirements-dev.txt
+
+      - name: Instalar pacote em modo editável
+        run: pip install -e .
+
+      - name: Rodar testes com cobertura
+        run: pytest --cov=htmlreader src/tests --maxfail=1 --disable-warnings -v
+
+      - name: Gerar relatório de cobertura
+        run: coverage xml
+
+      - name: Upload cobertura para Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+        continue-on-error: true
+
+  security:
+    name: Análise de Segurança (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Instalar Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit
+
+      - name: Rodar Bandit
+        run: bandit -r src/htmlreader -ll -ii

@@ -6,10 +6,11 @@ gerando arquivos de saída com novo conteúdo e lidando com erros de processamen
 """
 
 from pathlib import Path
+
 from src.htmlreader.core.models.processador_models import (
-    ResultadoProcessamento,
+    ErroDeProcessamento,
     LoteDeArquivos,
-    ErroDeProcessamento
+    ResultadoProcessamento,
 )
 
 

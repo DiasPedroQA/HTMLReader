@@ -3,14 +3,9 @@ Rotas da API para o visor de arquivos e pastas do HTMLReader.
 
 Inclui endpoints para listar o conteúdo de diretórios e obter prévias de arquivos.
 """
-
 from fastapi import APIRouter
-from src.htmlreader.core.models.visor_models import (
-    CaminhoEntrada,
-    FiltroVisor,
-    ListaDeItens,
-    PreviaArquivo,
-)
+
+from src.htmlreader.core.models.visor_models import CaminhoEntrada, FiltroVisor, ListaDeItens, PreviaArquivo
 from src.htmlreader.core.services import visor_service
 
 router = APIRouter()

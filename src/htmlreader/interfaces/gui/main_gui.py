@@ -4,12 +4,12 @@ Interface gráfica principal do HTMLReader.
 Permite ao usuário selecionar uma pasta e
 visualizar seu conteúdo usando o visor_service.
 """
-
-from pathlib import Path
 import tkinter as tk
+from pathlib import Path
 from tkinter import filedialog, messagebox
-from src.htmlreader.core.services import visor_service
+
 from src.htmlreader.core.models.visor_models import FiltroVisor
+from src.htmlreader.core.services import visor_service
 
 
 def visualizar_pasta():
