@@ -47,8 +47,8 @@ class FiltroVisor(BaseModel):
     Modelo para filtro de arquivos e pastas no visor.
 
     Attributes:
-        extensoes (Optional[list[str]]): Lista de extensões para filtrar arquivos.
-        tipo (Optional[Literal['arquivo', 'pasta']]): Tipo de item a filtrar.
+        extensoes (list[str] | None): Lista de extensões para filtrar arquivos.
+        tipo (str | None): Tipo de item a filtrar. Pode ser qualquer string ou None.
     """
 
     extensoes: list[str] | None = Field(default=None, description="Ex: ['.html']")
@@ -79,6 +79,12 @@ class ListaDeItens(BaseModel):
     """
 
     itens: list[ItemDePasta]
+
+    def __len__(self) -> int:
+        """
+        Retorna a quantidade de itens na lista.
+        """
+        return len(self.itens)
 
 
 class PreviaArquivo(BaseModel):

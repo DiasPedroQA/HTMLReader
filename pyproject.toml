@@ -1,3 +1,75 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "htmlreader"
+version = "0.1.0"
+description = "Aplicação modular para leitura, análise e processamento de arquivos HTML e texto."
+authors = [
+    { name = "Pedro PM Dias", email = "seu-email@exemplo.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "pydantic>=2.0",
+    "beautifulsoup4>=4.13.0",
+    "fastapi>=0.110.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=24.0.0",
+    "isort>=5.0.0",
+    "flake8>=7.0.0",
+    "bandit>=1.8.0",
+    # adicione outras dependências principais aqui
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipdb",
+    "mypy",
+    "pip-tools"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["htmlreader"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+testpaths = [
+    "src/tests"
+]
+python_files = "*.py"
+python_classes = "Test* test_*"
+python_functions = "test_*"
+
+[tool.coverage.run]
+branch = true
+source = [
+    "src/htmlreader"
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+exclude = [
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "htmlcov"
+]

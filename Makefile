@@ -37,3 +37,5 @@ clean:
 run:
 	.venv/bin/python -m htmlreader
 
+coverage-html:
+	PYTHONPATH=src .venv/bin/pytest --cov=htmlreader src/tests --cov-report=html
