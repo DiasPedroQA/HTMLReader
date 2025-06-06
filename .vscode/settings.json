@@ -6,6 +6,7 @@
         "celerybeat",
         "conteudo",
         "correcoes",
+        "criacao",
         "cython",
         "Cython",
         "diretorio",
@@ -19,10 +20,13 @@
         "funcao",
         "getgrgid",
         "getlogin",
+        "heranca",
         "htmlreader",
+        "httpx",
         "ipdb",
         "isort",
         "maxfail",
+        "minversion",
         "mkdocs",
         "mypy",
         "padx",
@@ -45,6 +49,7 @@
         "substituido",
         "sugestao",
         "sysname",
+        "testpaths",
         "tkinter",
         "Tkinter",
         "uvicorn"
@@ -67,7 +72,7 @@
         "**/Thumbs.db": true
     },
     "makefile.makefilePath": "Makefile",
-    "makefile.buildLog": "logs",
+    "makefile.buildLog": "src/logs",
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/src"
     },

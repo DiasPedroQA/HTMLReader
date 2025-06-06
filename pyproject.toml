@@ -10,8 +10,8 @@ authors = [
     { name = "Pedro PM Dias", email = "seu-email@exemplo.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.10"
 license = { file = "LICENSE" }
+requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.0",
     "beautifulsoup4>=4.13.0",
@@ -29,40 +29,50 @@ dependencies = [
 dev = [
     "ipdb",
     "mypy",
-    "pip-tools"
+    "pip-tools",
+    "pylint",
+    "httpx",
+    "types-beautifulsoup4",
+    "types-requests"
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["htmlreader"]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra -q"
-testpaths = [
-    "src/tests"
-]
+testpaths = ["src/tests"]
 python_files = "*.py"
 python_classes = "Test* test_*"
 python_functions = "test_*"
 
 [tool.coverage.run]
 branch = true
-source = [
-    "src/htmlreader"
-]
+source = ["src/htmlreader"]
 
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+exclude_lines = [
+    "if __name__ == .__main__.:",
+    "pragma: no cover"
+]
 
 [tool.black]
 line-length = 120
 target-version = ['py310']
+skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
 line_length = 120
+known_first_party = ["htmlreader"]
+known_third_party = ["pydantic", "fastapi", "bs4"]
+skip = [".venv", "build", "dist"]
 
 [tool.flake8]
 max-line-length = 120
@@ -73,3 +83,26 @@ exclude = [
     "dist",
     "htmlcov"
 ]
+extend-ignore = [
+    "E203",  # conflito com black
+    "W503"   # preferido por black
+]
+
+[tool.pylint]
+max-line-length = 120
+disable = [
+    "missing-docstring",
+    "invalid-name",
+    "too-few-public-methods"
+]
+ignore = ["tests"]
+good-names = ["i", "j", "k", "x", "y", "z", "df"]
+
+[tool.mypy]
+python_version = 3.10
+strict = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+warn_unused_ignores = true
+show_error_codes = true
+namespace_packages = true
