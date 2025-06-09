@@ -1,8 +1,4 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "htmlreader"
 version = "0.1.0"
 description = "Aplicação modular para leitura, análise e processamento de arquivos HTML e texto."
@@ -12,21 +8,31 @@ authors = [
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
+
+packages = [
+    { include = "core", from = "src" },
+    { include = "interfaces", from = "src" }
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 dependencies = [
     "pydantic>=2.0",
     "beautifulsoup4>=4.13.0",
-    "fastapi>=0.110.0",
+    "fastapi>=0.110.0"
+]
+
+[project.optional-dependencies]
+dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
     "black>=24.0.0",
     "isort>=5.0.0",
     "flake8>=7.0.0",
     "bandit>=1.8.0",
-    # adicione outras dependências principais aqui
-]
-
-[project.optional-dependencies]
-dev = [
     "ipdb",
     "mypy",
     "pip-tools",
@@ -45,14 +51,14 @@ where = ["src"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra -q"
-testpaths = ["src/tests"]
+testpaths = ["tests"]
 python_files = "*.py"
 python_classes = "Test* test_*"
 python_functions = "test_*"
 
 [tool.coverage.run]
 branch = true
-source = ["src/htmlreader"]
+source = ["src/core", "src/interfaces"]
 
 [tool.coverage.report]
 show_missing = true
@@ -70,7 +76,7 @@ skip-string-normalization = false
 [tool.isort]
 profile = "black"
 line_length = 120
-known_first_party = ["htmlreader"]
+known_first_party = ["core", "interfaces"]
 known_third_party = ["pydantic", "fastapi", "bs4"]
 skip = [".venv", "build", "dist"]
 
@@ -84,8 +90,8 @@ exclude = [
     "htmlcov"
 ]
 extend-ignore = [
-    "E203",  # conflito com black
-    "W503"   # preferido por black
+    "E203",
+    "W503"
 ]
 
 [tool.pylint]
@@ -95,7 +101,7 @@ disable = [
     "invalid-name",
     "too-few-public-methods"
 ]
-ignore = ["tests"]
+ignore = []
 good-names = ["i", "j", "k", "x", "y", "z", "df"]
 
 [tool.mypy]
@@ -106,3 +112,4 @@ disallow_untyped_defs = true
 warn_unused_ignores = true
 show_error_codes = true
 namespace_packages = true
+exclude = "tests/"
