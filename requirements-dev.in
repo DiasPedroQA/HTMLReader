@@ -3,6 +3,7 @@
 bandit
 coverage
 fastapi
+BeautifulSoup
 flake8
 pydantic
 pytest
