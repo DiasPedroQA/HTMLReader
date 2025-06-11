@@ -6,6 +6,7 @@
         "basico",
         "beautifulsoup",
         "celerybeat",
+        "codespace",
         "Constroi",
         "conteudo",
         "conversao",
@@ -31,6 +32,7 @@
         "httpx",
         "ipdb",
         "isort",
+        "levelname",
         "maxfail",
         "meuarquivo",
         "minversion",
@@ -63,6 +65,7 @@
         "Tkinter",
         "uvicorn",
         "validacao",
+        "variaveis",
         "versao"
     ],
     "python.testing.pytestEnabled": true,
