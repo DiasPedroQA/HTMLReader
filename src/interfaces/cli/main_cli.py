@@ -6,7 +6,7 @@
 #     parser = argparse.ArgumentParser(description="CLI para o HTMLReader")
 #     parser.add_argument("/home/", help="Caminho para o arquivo HTML")
 #     args = parser.parse_args()
-# 
+
 #     controller = ConversaoController()
 #     try:
 #         with open(args.arquivo, "r", encoding="utf-8") as f:
