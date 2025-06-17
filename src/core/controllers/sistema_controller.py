@@ -1,156 +1,116 @@
 """
 Controlador responsável por orquestrar a coleta de informações do sistema
-operacional de forma específica para cada SO, com registro de operações.
+operacional, retornando estruturas padronizadas de dados.
 """
 
-import json
 from pathlib import Path
+from core.models.pasta_model import ModelPasta
+from core.models.base_item import ModelCaminho
 from core.services.system_services import obter_info_sistema, obter_diretorio_usuario
-from core.models.pasta_model import Arquivo, ItemDoSistema, Pasta
-from core.utils.formatadores import converter_bytes_em_tamanho_legivel
 
 
 class ControladorSistema:
-    """Controlador para operações específicas por sistema operacional."""
+    """
+    Controlador para operações relacionadas ao sistema operacional
+    e à descoberta de caminhos do usuário.
+    """
+
+    _pasta_usuario: ModelPasta
 
     @staticmethod
     def _registrar_log(operacao: str, mensagem: str) -> None:
-        """Registra mensagens de log formatadas.
-
-        Args:
-            operacao: Nome da operação sendo registrada
-            mensagem: Detalhes da operação
-        """
+        """Registra uma operação no log padrão."""
         print(f"[ControladorSistema] {operacao}: {mensagem}")
 
-    @staticmethod
-    def identificar_sistema(tipo_sistema: str) -> str:
-        """Obtém o sistema operacional conforme solicitado.
+    @classmethod
+    def identificar_sistema(cls, tipo_sistema: str) -> str:
+        """
+        Identifica o nome do sistema operacional.
 
         Args:
-            tipo_sistema: Tipo do sistema a identificar ('linux', 'windows', 'darwin')
+            tipo_sistema: Nome base do sistema operacional.
 
         Returns:
-            Nome do sistema operacional confirmado
+            Nome padronizado do sistema.
         """
         nome_sistema: str = obter_info_sistema(nome_forcado=tipo_sistema)
-        ControladorSistema._registrar_log(
+        cls._registrar_log(
             operacao="Identificação do Sistema",
             mensagem=f"Sistema confirmado: {nome_sistema}",
         )
         return nome_sistema
 
-    @staticmethod
-    def obter_caminho_usuario(tipo_sistema: str) -> Path | None:
-        """Obtém o caminho do usuário para o sistema especificado.
+    @classmethod
+    def caminho_usuario_logado(cls, tipo_sistema: str) -> ModelPasta | None:
+        """
+        Obtém a pasta base do usuário encapsulada como objeto `ModelPasta`.
 
         Args:
-            tipo_sistema: Tipo do sistema operacional
+            tipo_sistema: Nome do sistema operacional.
 
         Returns:
-            Path do diretório home ou None se inválido
-
-        Raises:
-            OSError: Quando o sistema não é suportado
+            Representação da pasta do usuário.
         """
         try:
-            sistema_atual: str = ControladorSistema.identificar_sistema(
-                tipo_sistema=tipo_sistema
-            )
-            caminho_usuario: Path | None = obter_diretorio_usuario(
-                nome_sistema=sistema_atual
-            )
+            nome_so: str = cls.identificar_sistema(tipo_sistema=tipo_sistema)
+            caminho: Path | None = obter_diretorio_usuario(nome_sistema=nome_so)
 
-            mensagem: str = (
-                f"Caminho encontrado: {caminho_usuario}"
-                if caminho_usuario
-                else "Nenhum caminho válido encontrado"
-            )
-            ControladorSistema._registrar_log(
-                operacao="Identificação do Caminho", mensagem=mensagem
-            )
+            if not caminho or not caminho.exists():
+                cls._registrar_log(
+                    operacao="Caminho", mensagem="Nenhum caminho válido encontrado."
+                )
+                # return ModelPasta(path=None)
 
-            return caminho_usuario
+            # cls._pasta_usuario = ModelPasta(path=caminho)
+            cls._registrar_log(
+                operacao="Caminho", mensagem=f"Pasta do usuário: {caminho}"
+            )
+            return cls._pasta_usuario
 
-        except OSError as erro:
-            ControladorSistema._registrar_log(
-                operacao="Erro", mensagem=f"Sistema não suportado: {str(erro)}"
+        except OSError as e:
+            cls._registrar_log(
+                operacao="Erro", mensagem=f"Falha ao obter caminho do usuário: {e}"
+            )
+            # return ModelPasta(path=None)
+
+    @classmethod
+    def listar_itens_usuario_logado(cls) -> list[ModelCaminho] | None:
+        """
+        Lista os itens diretos da pasta do usuário logado como objetos de modelo.
+
+        Returns:
+            Lista de instâncias de arquivos e pastas.
+        """
+        if not cls._pasta_usuario:
+            cls._registrar_log(
+                operacao="Listagem", mensagem="Pasta do usuário ainda não foi definida."
+            )
+            return None
+
+        try:
+            subitens: list[ModelCaminho] = cls._pasta_usuario.listar_subitens()
+            cls._registrar_log(
+                operacao="Listagem", mensagem=f"{len(subitens)} itens encontrados."
+            )
+            return subitens
+        except OSError as e:
+            cls._registrar_log(
+                operacao="Erro", mensagem=f"Falha ao listar subitens: {e}"
             )
             return None
 
 
 if __name__ == "__main__":
-    # Exemplo de uso
     controlador = ControladorSistema()
-    sistemas_verificar: tuple[str, str, str] = ("windows", "darwin", "linux")
+    sistemas: tuple[str, str, str] = ("windows", "darwin", "linux")
 
-    for sistema in sistemas_verificar:
-        print(f"\nVerificando sistema {sistema.upper()}:")
-        caminho: Path | None = controlador.obter_caminho_usuario(tipo_sistema=sistema)
+    for sistema in sistemas:
+        print(f"\n--- Verificando: {sistema.upper()} ---")
+        item: ModelPasta | None = controlador.caminho_usuario_logado(
+            tipo_sistema=sistema
+        )
 
-        if caminho:
-            print(f"  • Caminho válido encontrado: {caminho}")
-            # Exemplo de uso do novo modelo
-
-            try:
-                # O método fábrica decide se cria uma Pasta ou um Arquivo
-                item_raiz: ItemDoSistema = ItemDoSistema.from_caminho(
-                    caminho_fornecido="/home/pedro-pm-dias/Downloads/Firefox"
-                )
-
-                # Agora, verificamos o tipo do item retornado
-                if isinstance(item_raiz, Pasta):
-                    print(f"O item é uma PASTA: {item_raiz.nome}")
-                    print(
-                        f"Ela contém {len(item_raiz.subarquivos)} arquivo(s) e"
-                        f" {len(item_raiz.subpastas)} subpasta(s)."
-                    )
-
-                    # Exibindo o conteúdo da pasta
-                    for arquivo in item_raiz.subarquivos:
-                        print(f"  - Arquivo: {arquivo.nome}")
-
-                    for subpasta in item_raiz.subpastas:
-                        print(
-                            f"  - Subpasta: {subpasta.nome} (Tamanho: {
-                                converter_bytes_em_tamanho_legivel(
-                                    tamanho_bytes=subpasta.tamanho_em_bytes
-                                )
-                            })"
-                        )
-
-                    # Usando o método para_dict_formatado que existe na Pasta
-                    print("\n--- Dicionário Formatado da Pasta ---")
-                    print(
-                        json.dumps(
-                            item_raiz.para_dict_formatado(recursivo=False),
-                            indent=4,
-                            ensure_ascii=False,
-                        )
-                    )
-
-                elif isinstance(item_raiz, Arquivo):
-                    print(f"O item é um ARQUIVO: {item_raiz.nome}")
-                    print(
-                        f"Tamanho: {
-                            converter_bytes_em_tamanho_legivel(
-                                tamanho_bytes=item_raiz.tamanho_em_bytes
-                            )
-                        }"
-                    )
-
-                    # Usando o método para_dict_formatado que existe no Arquivo
-                    print("\n--- Dicionário Formatado do Arquivo ---")
-                    print(
-                        json.dumps(
-                            item_raiz.para_dict_formatado(),
-                            indent=4,
-                            ensure_ascii=False,
-                        )
-                    )
-
-            except (ValueError, FileNotFoundError) as e:
-                print(f"Ocorreu um erro: {e}")
-
-        else:
-            print(f"  • Não foi possível determinar um caminho válido para {sistema}")
+        if item is not None:
+            print(f"  • Caminho {item} não encontrado ou erro.")
+        # else:
+            # controlador.listar_itens_usuario_logado(item)

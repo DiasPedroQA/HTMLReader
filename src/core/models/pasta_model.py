@@ -1,268 +1,137 @@
 """
-Utilitários para obtenção de informações do sistema operacional,
-usando um modelo de objetos com herança para representar a hierarquia
-de arquivos e diretórios.
+Módulo que define a classe ModelPasta para representar
+e manipular diretórios no sistema de arquivos.
+
+Extende a funcionalidade de ModelCaminho com características específicas de pastas/diretórios,
+incluindo a capacidade de listar seus conteúdos de forma seletiva e recursiva.
+
+Classes:
+    ModelPasta: Classe que representa um diretório no sistema de arquivos, herdando de ModelCaminho.
 """
 
-# import json
-import json
-from os import stat_result
 from pathlib import Path
-from dataclasses import dataclass, field
-from datetime import datetime
-from abc import ABC, abstractmethod
-from typing import TypedDict
 
-from core.utils.formatadores import (
-    converter_bytes_em_tamanho_legivel,
-    formatar_data_para_string,
-)
+from core.models.base_item import ModelCaminho
+from core.models.arquivo_model import ModelArquivo
 
 
-class PastaFormatadaDict(TypedDict):
-    """Dicionário tipado que representa uma pasta formatada para saída.
+class ModelPasta(ModelCaminho):
+    """
+    Representa uma pasta/diretório no sistema de arquivos.
+    Herda de ModelCaminho e adiciona funcionalidades específicas para diretórios.
 
-    Atributos:
-        nome_da_pasta (str): Nome da pasta
-        caminho_absoluto (str): Caminho completo da pasta
-        tamanho_total (str): Tamanho total formatado (ex: "1.2 MB")
-        criada_em (str): Data de criação formatada
-        modificada_em (str): Data de modificação formatada
-        subarquivos (list[str]): Lista de nomes de arquivos contidos
-        subpastas (list[PastaFormatadaDict]): Lista de subpastas formatadas
+    Attributes:
+        caminho_bruto (Path): Herdado de ModelCaminho, contém o Path do diretório.
     """
 
-    nome_da_pasta: str
-    caminho_absoluto: str
-    tamanho_total: str
-    criada_em: str
-    modificada_em: str
-    subarquivos: list[str]
-    subpastas: list["PastaFormatadaDict"]
-
-
-@dataclass(frozen=True, slots=True)
-class ItemDoSistema(ABC):
-    """Classe base abstrata que representa uma entidade no sistema de arquivos.
-
-    Esta classe não pode ser instanciada diretamente. Ela define os atributos
-    e comportamentos comuns a arquivos e pastas.
-
-    Atributos:
-        nome (str): Nome do item
-        caminho_absoluto (str): Caminho completo para o item
-        tamanho_em_bytes (int): Tamanho do item em bytes
-        data_de_criacao (datetime): Data de criação do item
-        data_da_ultima_modificacao (datetime): Data da última modificação
-    """
-
-    nome: str
-    caminho_absoluto: str
-    tamanho_em_bytes: int
-    data_de_criacao: datetime
-    data_da_ultima_modificacao: datetime
-
-    @abstractmethod
-    def para_dict_formatado(
-        self, recursivo: bool = False
-    ) -> dict[str, str] | PastaFormatadaDict:
-        """Converte o item para um dicionário formatado."""
-
-    @staticmethod
-    def from_caminho(caminho_fornecido: str | Path) -> "ItemDoSistema":
-        """Método fábrica que cria um objeto Pasta ou Arquivo conforme o caminho.
+    def __init__(self, path: Path) -> None:
+        """Inicializa o ModelPasta verificando se o caminho é um diretório válido.
 
         Args:
-            caminho_fornecido (str | Path): Caminho do arquivo ou diretório
-
-        Returns:
-            ItemDoSistema: Instância de Pasta ou Arquivo
+            path (Path): Caminho do diretório no sistema de arquivos.
 
         Raises:
-            FileNotFoundError: Se o caminho não existir
-            ValueError: Se o caminho não for um arquivo ou diretório válido
+            ValueError: Se o caminho não corresponder a um diretório existente.
         """
-        path: Path = Path(caminho_fornecido).resolve()
+        self.qtd_pastas: int = 0
+        self.qtd_arquivos: int = 0
+        super().__init__(caminho_bruto=path)
 
-        if not path.exists():
-            raise FileNotFoundError(f"O caminho não foi encontrado: {path}")
+        if not self.caminho_bruto.is_dir():
+            raise ValueError(
+                f"O caminho informado não é uma pasta: {self.caminho_bruto}"
+            )
 
-        if path.is_dir():
-            return Pasta.construir_pasta_recursivamente(path)
-        if path.is_file():
-            return Arquivo.construir_arquivo(path)
-
-        raise ValueError(f"O caminho não é um arquivo nem um diretório válido: {path}")
-
-
-@dataclass(frozen=True, slots=True)
-class Arquivo(ItemDoSistema):
-    """Representa um arquivo no sistema de arquivos.
-
-    Herda de ItemDoSistema e implementa os métodos abstratos.
-    """
-
-    @classmethod
-    def construir_arquivo(cls, path: Path) -> "Arquivo":
-        """Constrói uma instância de Arquivo a partir de um caminho.
+    def listar_subitens(self, recursivo: bool = False) -> list[ModelCaminho]:
+        """Lista todos os itens contidos na pasta (arquivos e subpastas).
 
         Args:
-            path (Path): Caminho para o arquivo
+            recursivo (bool): Se True, lista itens de subpastas recursivamente.
 
         Returns:
-            Arquivo: Nova instância de Arquivo com os metadados do arquivo
+            list[ModelCaminho]: Lista contendo ModelArquivo e ModelPasta dos itens encontrados.
         """
-        stats: stat_result = path.stat()
-        return cls(
-            nome=path.name,
-            caminho_absoluto=str(path),
-            tamanho_em_bytes=stats.st_size,
-            data_de_criacao=datetime.fromtimestamp(stats.st_ctime),
-            data_da_ultima_modificacao=datetime.fromtimestamp(stats.st_mtime),
-        )
+        subitens: list[ModelCaminho] = []
 
-    def para_dict_formatado(self, recursivo: bool = False) -> dict[str, str]:
-        """Retorna uma representação em dicionário formatado do arquivo.
+        for item in self.caminho_bruto.iterdir():
+            try:
+                if item.is_dir():
+                    pasta = ModelPasta(item)
+                    subitens.append(pasta)
+                    if recursivo:
+                        subitens.extend(pasta.listar_subitens(recursivo=True))
+                elif item.is_file():
+                    subitens.append(ModelArquivo(item))
+            except OSError:
+                continue
+
+        return subitens
+
+    def listar_arquivos(self, recursivo: bool = False) -> list[ModelArquivo]:
+        """Lista apenas os arquivos contidos na pasta.
 
         Args:
-            recursivo (bool, optional): Ignorado para arquivos. Mantido para compatibilidade.
-                                      Padrão: False.
+            recursivo (bool): Se True, lista arquivos de subpastas recursivamente.
 
         Returns:
-            dict[str, str]: Dicionário com nome, tamanho e data de criação formatados
+            list[ModelArquivo]: Lista de ModelArquivo contendo apenas arquivos.
         """
+        return [
+            item
+            for item in self.listar_subitens(recursivo=recursivo)
+            if isinstance(item, ModelArquivo)
+        ]
+
+    def listar_subpastas(self, recursivo: bool = False) -> list["ModelPasta"]:
+        """Lista apenas as subpastas contidas na pasta.
+
+        Args:
+            recursivo (bool): Se True, lista subpastas recursivamente.
+
+        Returns:
+            list[ModelPasta]: Lista de ModelPasta contendo apenas diretórios.
+        """
+        return [
+            item
+            for item in self.listar_subitens(recursivo)
+            if isinstance(item, ModelPasta)
+        ]
+
+    def contar_itens(self) -> tuple[int, int]:
+        """Conta a quantidade de arquivos e subpastas contidos na pasta.
+
+        Returns:
+            Tuple[int, int]: (quantidade_arquivos, quantidade_pastas)
+        """
+        sub_arquivos: int = 0
+        sub_pastas: int = 0
+
+        for item in self.caminho_bruto.iterdir():
+            try:
+                if item.is_dir():
+                    sub_pastas += 1
+                elif item.is_file():
+                    sub_arquivos += 1
+            except OSError:
+                continue
+
+        return (sub_arquivos, sub_pastas)
+
+    def para_dict(self) -> dict[str, str | int | list]:
+        """Converte as propriedades da pasta para um dicionário.
+
+        Returns:
+            dict: Dicionário contendo propriedades da pasta,
+                  incluindo tipo, nome, caminho, datas e contagem de itens.
+        """
+        self.qtd_arquivos, self.qtd_pastas = self.contar_itens()
         return {
-            "tipo": "Arquivo",
+            "tipo": "pasta",
             "nome": self.nome,
-            "tamanho": converter_bytes_em_tamanho_legivel(
-                tamanho_bytes=self.tamanho_em_bytes
-            ),
-            "criado_em": formatar_data_para_string(data_e_hora=self.data_de_criacao),
+            "caminho": self.caminho,
+            "criado_em": self.data_criacao.isoformat(),
+            "modificado_em": self.data_modificacao.isoformat(),
+            "quantidade_arquivos": self.qtd_arquivos,
+            "quantidade_pastas": self.qtd_pastas,
+            "tamanho_total": sum(f.tamanho_bytes for f in self.listar_arquivos()),
         }
-
-
-@dataclass(frozen=True, slots=True)
-class Pasta(ItemDoSistema):
-    """Representa uma pasta/diretório no sistema de arquivos.
-
-    Herda de ItemDoSistema e adiciona capacidade de conter outros itens.
-
-    Atributos:
-        subpastas (list[Pasta]): Lista de subpastas contidas
-        subarquivos (list[Arquivo]): Lista de arquivos contidos
-    """
-
-    subpastas: list["Pasta"] = field(default_factory=list)
-    subarquivos: list[Arquivo] = field(default_factory=list)
-
-    @classmethod
-    def construir_pasta_recursivamente(cls, path: Path) -> "Pasta":
-        """Constrói uma pasta e seu conteúdo de forma recursiva.
-
-        Args:
-            path (Path): Caminho para a pasta raiz
-
-        Returns:
-            Pasta: Nova instância de Pasta com todo o conteúdo recursivamente
-        """
-        lista_subpastas: list["Pasta"] = []
-        lista_subarquivos: list[Arquivo] = []
-
-        for item_path in path.iterdir():
-            sub_item: ItemDoSistema = ItemDoSistema.from_caminho(
-                caminho_fornecido=str(item_path)
-            )
-            if isinstance(sub_item, Pasta):
-                lista_subpastas.append(sub_item)
-            elif isinstance(sub_item, Arquivo):
-                lista_subarquivos.append(sub_item)
-
-        tamanho_total: int = sum(a.tamanho_em_bytes for a in lista_subarquivos) + sum(
-            p.tamanho_em_bytes for p in lista_subpastas
-        )
-
-        stats_pasta: stat_result = path.stat()
-        return cls(
-            nome=path.name,
-            caminho_absoluto=str(path),
-            tamanho_em_bytes=tamanho_total,
-            data_de_criacao=datetime.fromtimestamp(stats_pasta.st_ctime),
-            data_da_ultima_modificacao=datetime.fromtimestamp(stats_pasta.st_mtime),
-            subpastas=lista_subpastas,
-            subarquivos=lista_subarquivos,
-        )
-
-    def para_dict_formatado(self, recursivo: bool = False) -> PastaFormatadaDict:
-        # Implementação específica para pastas
-        dados: PastaFormatadaDict = {
-            "nome_da_pasta": self.nome,
-            "caminho_absoluto": self.caminho_absoluto,
-            "tamanho_total": converter_bytes_em_tamanho_legivel(
-                tamanho_bytes=self.tamanho_em_bytes
-            ),
-            "criada_em": formatar_data_para_string(data_e_hora=self.data_de_criacao),
-            "modificada_em": formatar_data_para_string(
-                data_e_hora=self.data_da_ultima_modificacao
-            ),
-            "subarquivos": [arquivo.nome for arquivo in self.subarquivos],
-            "subpastas": [
-                subpasta.para_dict_formatado(recursivo=False)
-                for subpasta in self.subpastas
-            ],
-        }
-
-        if recursivo:
-            dados["subpastas"] = [
-                subpasta.para_dict_formatado(recursivo=True)
-                for subpasta in self.subpastas
-            ]
-        return dados
-
-
-# Exemplo de uso do novo modelo
-
-try:
-    # O método fábrica decide se cria uma Pasta ou um Arquivo
-    item_raiz: ItemDoSistema = ItemDoSistema.from_caminho(
-        caminho_fornecido="/home/pedro-pm-dias/Downloads/Firefox"
-    )
-
-    # Agora, verificamos o tipo do item retornado
-    if isinstance(item_raiz, Pasta):
-        print(f"O item é uma PASTA: {item_raiz.nome}")
-        print(
-            f"Ela contém {len(item_raiz.subarquivos)} arquivo(s) e"
-            f" {len(item_raiz.subpastas)} subpasta(s)."
-        )
-
-        # Exibindo o conteúdo da pasta
-        for arquivo in item_raiz.subarquivos:
-            print(f"  - Arquivo: {arquivo.nome}")
-
-        for subpasta in item_raiz.subpastas:
-            print(f"  - Subpasta: {subpasta.nome} (Tamanho: {converter_bytes_em_tamanho_legivel(tamanho_bytes=subpasta.tamanho_em_bytes)})")
-
-        # Usando o método para_dict_formatado que existe na Pasta
-        print("\n--- Dicionário Formatado da Pasta ---")
-        print(
-            json.dumps(
-                item_raiz.para_dict_formatado(recursivo=False),
-                indent=4,
-                ensure_ascii=False,
-            )
-        )
-
-    # Corrigindo a parte do código com o erro (linha 294 aproximadamente)
-    elif isinstance(item_raiz, Arquivo):
-        print(f"O item é um ARQUIVO: {item_raiz.nome}")
-        tamanho_formatado = converter_bytes_em_tamanho_legivel(
-            tamanho_bytes=item_raiz.tamanho_em_bytes
-        )
-        print(f"Tamanho: {tamanho_formatado}")
-
-        # Usando o método para_dict_formatado que existe no Arquivo
-        print("\n--- Dicionário Formatado do Arquivo ---")
-        print(json.dumps(item_raiz.para_dict_formatado(), indent=4, ensure_ascii=False))
-
-except (ValueError, FileNotFoundError) as e:
-    print(f"Ocorreu um erro: {e}")
