@@ -32,7 +32,7 @@ jobs:
         run: pip install -e .
 
       - name: Rodar flake8
-        run: flake8 src/htmlreader src/tests
+        run: flake8 src/htmlreader tests
 
       - name: Rodar pylint
         run: pylint src/htmlreader || true
@@ -61,7 +61,7 @@ jobs:
         run: pip install -e .
 
       - name: Rodar testes com cobertura
-        run: pytest --cov=htmlreader src/tests --maxfail=1 --disable-warnings -v
+        run: pytest --cov=htmlreader tests --maxfail=1 --disable-warnings -v
 
       - name: Gerar relatório de cobertura
         run: coverage xml

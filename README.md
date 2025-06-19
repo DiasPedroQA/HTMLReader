@@ -14,7 +14,7 @@ A estrutura do HTMLReader foi desenhada para separar claramente responsabilidade
   - **gui**: Interface gráfica baseada em Tkinter.
   - **cli**: Interface de linha de comando para uso via terminal.
   - **api**: Interface de API REST com FastAPI, incluindo rotas para operações de visor e processamento.
-- **src/tests**: Testes automatizados para todos os módulos principais, garantindo robustez e exemplos de uso.
+- **tests**: Testes automatizados para todos os módulos principais, garantindo robustez e exemplos de uso.
 - **Makefile**: Comandos para facilitar instalação, testes, lint, formatação e execução.
 - **requirements.txt / requirements-dev.txt**: Dependências de produção e desenvolvimento.
 
@@ -27,7 +27,7 @@ make test
 ou diretamente:
 
 ```bash
-pytest src/tests
+pytest tests
 ```
 
 ## Como usar o HTMLReader

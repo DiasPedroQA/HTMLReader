@@ -12,9 +12,9 @@ mkdir -p src/core/utils
 mkdir -p src/interfaces/api/routes
 mkdir -p src/interfaces/cli
 mkdir -p src/interfaces/gui
-mkdir -p src/tests/core/models
-mkdir -p src/tests/core/services
-mkdir -p src/tests/core/utils
+mkdir -p tests/core/models
+mkdir -p tests/core/services
+mkdir -p tests/core/utils
 
 echo "Movendo arquivos para a nova estrutura..."
 
@@ -49,14 +49,14 @@ mv src/interfaces/gui/__init__.py src/interfaces/gui/__init__.py 2>/dev/null || 
 mv src/interfaces/gui/main_gui.py src/interfaces/gui/main_gui.py 2>/dev/null || true
 
 # Testes
-mv src/tests/core/models/test_directory_model.py src/tests/core/models/test_directory_model.py 2>/dev/null || true
-mv src/tests/core/models/test_file_model.py src/tests/core/models/test_file_model.py 2>/dev/null || true
-mv src/tests/core/services/test_text_analysis_service.py src/tests/core/services/test_text_analysis_service.py 2>/dev/null || true
-mv src/tests/core/services/test_text_file_service.py src/tests/core/services/test_text_file_service.py 2>/dev/null || true
-mv src/tests/core/utils/test_encoding_utils.py src/tests/core/utils/test_encoding_utils.py 2>/dev/null || true
-mv src/tests/core/utils/test_file_utils.py src/tests/core/utils/test_file_utils.py 2>/dev/null || true
-mv src/tests/core/utils/test_path_utils.py src/tests/core/utils/test_path_utils.py 2>/dev/null || true
-mv src/tests/core/utils/test_system_utils.py src/tests/core/utils/test_system_utils.py 2>/dev/null || true
+mv tests/core/models/test_directory_model.py tests/core/models/test_directory_model.py 2>/dev/null || true
+mv tests/core/models/test_file_model.py tests/core/models/test_file_model.py 2>/dev/null || true
+mv tests/core/services/test_text_analysis_service.py tests/core/services/test_text_analysis_service.py 2>/dev/null || true
+mv tests/core/services/test_text_file_service.py tests/core/services/test_text_file_service.py 2>/dev/null || true
+mv tests/core/utils/test_encoding_utils.py tests/core/utils/test_encoding_utils.py 2>/dev/null || true
+mv tests/core/utils/test_file_utils.py tests/core/utils/test_file_utils.py 2>/dev/null || true
+mv tests/core/utils/test_path_utils.py tests/core/utils/test_path_utils.py 2>/dev/null || true
+mv tests/core/utils/test_system_utils.py tests/core/utils/test_system_utils.py 2>/dev/null || true
 
 echo "Estrutura refatorada com sucesso!"
 

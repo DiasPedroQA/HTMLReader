@@ -1,62 +1,74 @@
 """
 Utilitários para obtenção de informações do sistema operacional,
 validação de caminhos e manipulação básica de arquivos e diretórios.
+
+Módulo otimizado para Python 3.12, utilizando type hints mais recentes
+e recursos de performance específicos desta versão.
 """
 
 from getpass import getuser
 from pathlib import Path
 from platform import system
+from enum import Enum
 
 
-def obter_info_sistema(nome_forcado: str | None = None) -> str:
-    """Obtém o nome do sistema operacional atual ou simulado.
+class SistemaOperacional(str, Enum):
+    """Enum para representar sistemas operacionais suportados."""
 
-    Args:
-        nome_forcado: Nome do SO para simulação (opcional)
+    WINDOWS = "windows"
+    LINUX = "linux"
+    MACOS = "macos"
 
-    Returns:
-        Nome do sistema operacional em minúsculas
-    """
-    return nome_forcado.lower() if nome_forcado else system().lower()
+    @classmethod
+    def detectar(cls, sistema_simulado: str | None = None) -> "SistemaOperacional":
+        """Detecta ou valida um nome de sistema operacional conhecido.
 
+        Args:
+            sistema_simulado (str | None): Nome do sistema para simular (ou None para autodetecção).
 
-def obter_diretorio_usuario(nome_sistema: str | None = None) -> Path | None:
-    """Obtém o caminho da pasta home do usuário para o SO especificado.
+        Returns:
+            SistemaOperacional: Valor correspondente da enumeração.
 
-    Args:
-        nome_sistema: Nome do SO ('linux', 'windows' ou 'darwin')
+        Raises:
+            ValueError: Se o nome não for reconhecido.
+        """
+        nome: str = (sistema_simulado or system()).casefold()
+        sistemas_permitidos: dict[str, SistemaOperacional] = {
+            "windows": cls.WINDOWS,
+            "win32": cls.WINDOWS,
+            "linux": cls.LINUX,
+            "darwin": cls.MACOS,
+            "mac": cls.MACOS,
+            "macos": cls.MACOS,
+        }
 
-    Returns:
-        Objeto Path do diretório home ou None se não existir
+        if nome in sistemas_permitidos:
+            return sistemas_permitidos[nome]
 
-    Raises:
-        OSError: Se o SO não for suportado
-    """
-    sistema_atual: str = obter_info_sistema(nome_forcado=nome_sistema)
-    usuario = getuser()
+        raise ValueError(f"Sistema operacional não suportado ou desconhecido: {nome}")
 
-    caminhos = {
-        "windows": f"C:/Users/{usuario}",
-        "linux": f"/home/{usuario}",
-        "darwin": f"/Users/{usuario}",
-        "mac": f"/Users/{usuario}",
-    }
+    @classmethod
+    def obter_raiz_usuario(cls, sistema_desejado: str | None = None) -> Path:
+        """Retorna o caminho base da pasta pessoal do usuário.
 
-    if sistema_atual not in caminhos:
-        raise OSError(f"Sistema operacional não suportado: {sistema_atual}")
+        Args:
+            sistema_desejado (str | None): Nome opcional do sistema a simular.
 
-    caminho = Path(caminhos.get(sistema_atual, f"/home/{usuario}"))
-    return caminho if caminho.exists() else None
+        Returns:
+            Path: Caminho da pasta pessoal do usuário.
 
+        Raises:
+            ValueError: Se o sistema informado não for suportado.
+        """
+        sistema: SistemaOperacional = cls.detectar(sistema_simulado=sistema_desejado)
+        nome_usuario: str = getuser()
 
-def validar_caminho(caminho: str) -> Path | None:
-    """Verifica se um caminho existe e retorna como objeto Path.
-
-    Args:
-        caminho: Caminho a ser validado
-
-    Returns:
-        Objeto Path se existir, None caso contrário
-    """
-    objeto_caminho = Path(caminho)
-    return objeto_caminho if objeto_caminho.exists() else None
+        match sistema:
+            case cls.WINDOWS:
+                return Path(f"C:/Users/{nome_usuario}")
+            case cls.LINUX:
+                return Path(f"/home/{nome_usuario}")
+            case cls.MACOS:
+                return Path(f"/Users/{nome_usuario}")
+            case _:  # segurança extra
+                raise ValueError(f"Sem suporte para sistema: {sistema}")
