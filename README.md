@@ -6,11 +6,11 @@ O HTMLReader é uma aplicação modular para leitura, análise e processamento d
 
 A estrutura do HTMLReader foi desenhada para separar claramente responsabilidades e facilitar testes, manutenção e extensibilidade:
 
-- **src/htmlreader/core**: Lógica central do sistema, incluindo modelos (schemas Pydantic), serviços de processamento e utilitários.
+- **src/core**: Lógica central do sistema, incluindo modelos (schemas Pydantic), serviços de processamento e utilitários.
   - **models**: Schemas e validações para arquivos, pastas e operações.
   - **services**: Funções de processamento, leitura, listagem e prévia de arquivos.
   - **utils**: Funções auxiliares para manipulação de caminhos, sistema e arquivos.
-- **src/htmlreader/interfaces**: Pontos de entrada para interação do usuário.
+- **src/interfaces**: Pontos de entrada para interação do usuário.
   - **gui**: Interface gráfica baseada em Tkinter.
   - **cli**: Interface de linha de comando para uso via terminal.
   - **api**: Interface de API REST com FastAPI, incluindo rotas para operações de visor e processamento.
