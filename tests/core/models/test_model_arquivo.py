@@ -97,14 +97,18 @@ class TestArquivo:
     def test_escrever_conteudo(self, arquivo_teste: Path) -> None:
         """Deve sobrescrever o conteúdo do arquivo quando permitido."""
         arquivo = Arquivo(caminho=arquivo_teste)
-        resultado: bool = arquivo.escrever_conteudo(conteudo_arquivo="novo conteudo", sobrescrever=True)
+        resultado: bool = arquivo.escrever_conteudo(
+            conteudo_arquivo="novo conteudo", sobrescrever=True
+        )
         assert resultado is True
         assert arquivo.ler_conteudo() == "novo conteudo"
 
     def test_nao_sobrescrever_arquivo_existente(self, arquivo_teste: Path) -> None:
         """Não deve sobrescrever o arquivo quando a sobrescrição não é permitida."""
         arquivo = Arquivo(caminho=arquivo_teste)
-        resultado: bool = arquivo.escrever_conteudo(conteudo_arquivo="ignorado", sobrescrever=False)
+        resultado: bool = arquivo.escrever_conteudo(
+            conteudo_arquivo="ignorado", sobrescrever=False
+        )
         assert resultado is False
 
     def test_ler_conteudo(self, arquivo_teste: Path) -> None:
