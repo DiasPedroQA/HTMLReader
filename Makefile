@@ -23,8 +23,8 @@ install: venv
 	fi
 
 lint:
-	.venv/bin/pylint src/htmlreader tests || true
-	.venv/bin/flake8 src/htmlreader tests || true
+	.venv/bin/pylint src/ tests || true
+	.venv/bin/flake8 src/ tests || true
 
 format:
 	.venv/bin/black src/ tests/
@@ -39,10 +39,10 @@ clean:
 	rm -rf .pytest_cache .mypy_cache .coverage htmlcov
 
 run:
-	PYTHONPATH=src .venv/bin/python -m htmlreader
+	PYTHONPATH=src .venv/bin/python -m src
 
 coverage-html:
-	PYTHONPATH=src .venv/bin/pytest --cov=htmlreader tests --cov-report=html
+	PYTHONPATH=src .venv/bin/pytest --cov=src tests --cov-report=html
 
 all: clean venv install lint format test coverage-html
 	@echo "Pipeline completa executada com sucesso!"

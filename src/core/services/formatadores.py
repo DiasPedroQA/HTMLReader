@@ -23,9 +23,9 @@ def formatar_data_para_string(data_e_hora: datetime) -> str:
     return data_e_hora.strftime(format="%d/%m/%Y %H:%M:%S")
 
 
-def obter_extensao_legivel(extensao: str) -> str:
+def obter_extensao_legivel(formato_padrao_extensao: str) -> str:
     """Converte extensão técnica para nome amigável."""
-    mapa: dict[str, str] = {
+    mapa_extensoes_aceitaveis: dict[str, str] = {
         ".txt": "Texto",
         ".md": "Markdown",
         ".json": "JSON",
@@ -35,7 +35,10 @@ def obter_extensao_legivel(extensao: str) -> str:
         ".html": "HTML",
         ".log": "Log",
     }
-    return mapa.get(extensao.lower(), extensao.strip(".").upper())
+    return mapa_extensoes_aceitaveis.get(
+        formato_padrao_extensao.lower(),
+        formato_padrao_extensao.strip(".").upper()
+    )
 
 
 def formatar_booleano(valor: bool) -> str:

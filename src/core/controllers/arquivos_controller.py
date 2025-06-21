@@ -14,42 +14,59 @@ from core.models.model_arquivo import Arquivo
 class ArquivosController:
     """Controlador de operações de criação e leitura de arquivos."""
 
-    def criar_arquivo(self, caminho: str | Path, conteudo: str = "") -> Arquivo:
+    def criar_arquivo(self, caminho_arquivo: str | Path, conteudo: str = "") -> Arquivo:
         """
         Cria um arquivo e escreve conteúdo, se fornecido.
 
         Args:
-            caminho (str | Path): Caminho do arquivo a ser criado.
+            caminho_arquivo (str | Path): Caminho do arquivo a ser criado.
             conteudo (str): Conteúdo opcional a ser escrito.
 
         Returns:
             Arquivo: Instância do arquivo criado ou existente.
         """
-        arquivo = Arquivo(caminho=caminho)
+        objeto_arquivo = Arquivo(caminho=caminho_arquivo)
         if conteudo:
-            arquivo.escrever_conteudo(conteudo_arquivo=conteudo, sobrescrever=False)
+            objeto_arquivo.escrever_conteudo(
+                conteudo_arquivo=conteudo, sobrescrever=False
+            )
         else:
-            arquivo.criar_se_nao_existir()
-        return arquivo
+            objeto_arquivo.criar_arquivo_se_nao_existir()
+        return objeto_arquivo
 
-    def ler_arquivo(self, caminho: str | Path) -> dict[str, str | None]:
+    def ler_conteudo_arquivo(self, caminho_arquivo: str | Path) -> str | None:
         """
-        Lê informações e conteúdo de um arquivo.
+        Lê o conteúdo de um arquivo.
 
         Args:
-            caminho (str | Path): Caminho do arquivo a ser lido.
+            caminho_arquivo (str | Path): Caminho do arquivo a ser lido.
 
         Returns:
-            dict[str, str | None]: Dicionário com metadados e conteúdo do arquivo.
+            str | None: Conteúdo do arquivo.
         """
-        arquivo = Arquivo(caminho=caminho)
+        objeto_arquivo = Arquivo(caminho=caminho_arquivo)
+        return objeto_arquivo.ler_conteudo()
+
+    def ler_metadados_arquivo(
+        self, caminho_arquivo: str | Path
+    ) -> dict[str, str | None]:
+        """
+        Lê informações de metadados de um arquivo, sem o conteúdo.
+
+        Args:
+            caminho_arquivo (str | Path): Caminho do arquivo a ser lido.
+
+        Returns:
+            dict[str, str | None]: Dicionário com metadados sem o conteúdo do arquivo.
+        """
+        objeto_arquivo = Arquivo(caminho=caminho_arquivo)
         return {
-            "nome": arquivo.nome_caminho,
-            "nome_sem_extensao": arquivo.nome_sem_extensao,
-            "extensao": arquivo.extensao,
-            "extensao_legivel": arquivo.extensao_legivel,
-            "tamanho_legivel": arquivo.tamanho_legivel,
-            "eh_oculto": "Sim" if arquivo.eh_arquivo_oculto else "Não",
-            "data_modificacao": arquivo.data_modificacao_formatada,
-            "conteudo": arquivo.ler_conteudo(),
+            "nome": objeto_arquivo.nome_caminho,
+            "nome_sem_extensao": objeto_arquivo.nome_sem_extensao,
+            "extensao": objeto_arquivo.extensao,
+            "extensao_legivel": objeto_arquivo.extensao_legivel,
+            "tamanho_legivel": objeto_arquivo.tamanho_legivel,
+            "eh_oculto": "Sim" if objeto_arquivo.eh_arquivo_oculto else "Não",
+            "data_criacao": objeto_arquivo.data_criacao_legivel,
+            "data_modificacao": objeto_arquivo.data_modificacao_legivel,
         }

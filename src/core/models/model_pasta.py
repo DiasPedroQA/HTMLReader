@@ -7,7 +7,7 @@ operações úteis relacionadas a diretórios, incluindo:
 - Criação condicional de pastas
 - Listagem de conteúdo (direta e recursiva)
 - Cálculo do tamanho total de arquivos contidos
-- Contagem de arquivos e subpastas
+- Contagem de arquivos e sub_pastas
 - Identificação de arquivos ocultos
 - Análise de distribuição por extensão de arquivos
 
@@ -19,7 +19,7 @@ from pathlib import Path
 from collections import Counter
 
 from core.models.model_caminho_base import CaminhoBase
-from core.utils.formatadores import (
+from core.services.formatadores import (
     converter_bytes_em_tamanho_legivel,
     formatar_data_para_string,
     formatar_nome_arquivo,
@@ -37,27 +37,29 @@ class Pasta(CaminhoBase):
         conteudo_listado: Retorna os itens diretamente contidos na pasta.
         nome_pasta: Retorna o nome da pasta (sem caminho).
         quantidade_arquivos: Conta arquivos diretamente contidos.
-        quantidade_pastas: Conta subpastas diretamente contidas.
+        quantidade_pastas: Conta sub_pastas diretamente contidas.
         existe_arquivo_oculto: Verifica a existência de arquivos ocultos.
-        data_modificacao_formatada: Retorna a data da última modificação formatada.
-        listar_recursivo: Lista todo conteúdo recursivamente.
-        listar_ocultos: Lista nomes dos arquivos e pastas ocultos.
+        data_modificacao_legivel: Retorna a data da última modificação formatada.
+        coletar_itens_recursivamente: Coleta todo conteúdo recursivamente.
+        coletar_itens_ocultos: Coleta dos nomes dos arquivos e pastas ocultos.
         calcular_tamanho_total: Soma o tamanho de todos os arquivos contidos.
         tamanho_total_legivel: Retorna o tamanho em formato legível.
         contar_por_extensao: Conta arquivos por tipo de extensão.
     """
 
     @property
-    def conteudo_listado(self) -> list[Path]:
+    def conteudo_listado(self) -> list[CaminhoBase]:
         """
-        Lista todos os arquivos e subpastas diretamente contidos na pasta.
+        Coleta todos os arquivos e sub_pastas diretamente contidos na pasta.
 
         Returns:
-            list[Path]: Lista de entradas no diretório (não recursiva).
+            list[CaminhoBase]: Lista de itens no diretório (não recursiva).
         """
         if not self.caminho_existe or not self._path.is_dir():
             return []
-        return list(self._path.iterdir())
+        return [
+            CaminhoBase(caminho=caminho_pasta) for caminho_pasta in self._path.iterdir()
+        ]
 
     @property
     def nome_pasta(self) -> str:
@@ -77,17 +79,23 @@ class Pasta(CaminhoBase):
         Returns:
             int: Quantidade de arquivos.
         """
-        return len([p for p in self.conteudo_listado if p.is_file()])
+        return len([
+            p for p in self.conteudo_listado if p.retornar_o_tipo.value == "Arquivo"
+        ])
 
     @property
     def quantidade_pastas(self) -> int:
         """
-        Conta quantas subpastas existem diretamente na pasta.
+        Conta quantas sub_pastas existem diretamente na pasta.
 
         Returns:
             int: Quantidade de subdiretórios.
         """
-        return len([p for p in self.conteudo_listado if p.is_dir()])
+        return len([
+            pasta
+            for pasta in self.conteudo_listado
+            if pasta.retornar_o_tipo.value == "Pasta"
+        ])
 
     @property
     def existe_arquivo_oculto(self) -> bool:
@@ -97,10 +105,10 @@ class Pasta(CaminhoBase):
         Returns:
             bool: True se houver pelo menos um item oculto, False caso contrário.
         """
-        return any(p.name.startswith(".") for p in self.conteudo_listado)
+        return any(p.nome_caminho.startswith(".") for p in self.conteudo_listado)
 
     @property
-    def data_modificacao_formatada(self) -> str | None:
+    def data_modificacao_legivel(self) -> str | None:
         """
         Retorna a data da última modificação da pasta, em formato legível.
 
@@ -111,37 +119,29 @@ class Pasta(CaminhoBase):
             return None
         return formatar_data_para_string(data_e_hora=self.data_modificacao)
 
-    def criar_se_nao_existir(self) -> bool:
+    def coletar_itens_recursivamente(self) -> list[CaminhoBase]:
         """
-        Cria a pasta se ela ainda não existir.
+        ê todos os arquivos e sub_pastas contidos numa pasta, de forma recursiva.
 
         Returns:
-            bool: True se criada com sucesso, False se já existia.
-        """
-        if not self._path.exists():
-            self._path.mkdir(parents=True, exist_ok=True)
-            return True
-        return False
-
-    def listar_recursivo(self) -> list[Path]:
-        """
-        Lista todos os arquivos e subpastas contidos na pasta, de forma recursiva.
-
-        Returns:
-            list[Path]: Lista completa de caminhos encontrados na pasta e subpastas.
+            list[CaminhoBase]: Lista completa de caminhos encontrados na pasta e sub_pastas.
         """
         if not self.caminho_existe or not self._path.is_dir():
             return []
-        return list(self._path.rglob("*"))
+        return [CaminhoBase(caminho=item) for item in self._path.rglob("*")]
 
-    def listar_ocultos(self) -> list[str]:
+    def coletar_itens_ocultos(self) -> list[Path]:
         """
-        Lista os nomes dos arquivos e pastas ocultos diretamente contidos.
+        ê os nomes dos arquivos e pastas ocultos diretamente contidos.
 
         Returns:
-            list[str]: Lista de nomes dos itens ocultos.
+            list[str]: Coleta dos nomes dos itens ocultos.
         """
-        return [p.name for p in self.conteudo_listado if p.name.startswith(".")]
+        return [
+            p.caminho_absoluto
+            for p in self.conteudo_listado
+            if p.nome_caminho.startswith(".")
+        ]
 
     def calcular_tamanho_total(self) -> int:
         """
@@ -154,7 +154,7 @@ class Pasta(CaminhoBase):
             return 0
 
         total = 0
-        for arquivo in self._path.rglob("*"):
+        for arquivo in self._path.rglob(pattern="*"):
             if arquivo.is_file():
                 try:
                     total += arquivo.stat().st_size
@@ -185,6 +185,6 @@ class Pasta(CaminhoBase):
             return {}
 
         extensoes: list[str] = [
-            p.suffix.lower() for p in self._path.rglob("*") if p.is_file() and p.suffix
+            p.suffix.lower() for p in self._path.rglob(pattern="*") if p.is_file() and p.suffix
         ]
         return dict(Counter(extensoes))

@@ -70,7 +70,7 @@
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(object=e)) from e
 # """
-# Rotas da API para listar o conteúdo de diretórios.
+# Rotas da API para ler o conteúdo de diretórios.
 # """
 
 # from fastapi import APIRouter, HTTPException, Query
@@ -83,7 +83,7 @@
 #     PermissaoNegadaError,
 # )
 
-# router = APIRouter(prefix="/listar-conteudo", tags=["Explorador"])
+# router = APIRouter(prefix="/coletar_conteudo", tags=["Explorador"])
 # controller = ExploradorController()
 
 
@@ -122,14 +122,14 @@
 
 
 # # --- CONTEXTO: PASTA ---
-# @router.get("/listar-pastas", tags=["Pasta"])
+# @router.get("/coletar_pastas", tags=["Pasta"])
 # def listar_pastas(caminho: str) -> Pasta:
 #     controller = PastaController()
 #     return controller.carregar_pasta(caminho)
 
 
 # # --- CONTEXTO: PROCESSADOR ---
-# @router.get("/listar-arquivos", tags=["Arquivos"])
+# @router.get("/coletar_arquivos", tags=["Arquivos"])
 # def listar_arquivos_em_pasta(caminho: str) -> list[str]:
 #     return listar_arquivos_html(caminho)
 

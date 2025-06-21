@@ -7,7 +7,7 @@
 ignore_missing_imports = true
 
 [tool.poetry]
-name = "htmlreader"
+name = "HTMLReader"
 version = "0.1.0"
 description = "Aplicação modular para leitura, análise e processamento de arquivos HTML e texto"
 authors = ["Pedro PM Dias <seu-email@exemplo.com>"]

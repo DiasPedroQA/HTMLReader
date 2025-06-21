@@ -32,10 +32,10 @@ jobs:
         run: pip install -e .
 
       - name: Rodar flake8
-        run: flake8 src/htmlreader tests
+        run: flake8 src/ tests
 
       - name: Rodar pylint
-        run: pylint src/htmlreader || true
+        run: pylint src/ || true
 
   test:
     name: Testes com cobertura
@@ -90,4 +90,4 @@ jobs:
           pip install bandit
 
       - name: Rodar Bandit
-        run: bandit -r src/htmlreader -ll -ii
+        run: bandit -r src/ -ll -ii

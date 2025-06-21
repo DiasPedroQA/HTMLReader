@@ -9,7 +9,7 @@ Classes:
     CaminhoBase (ABC): Classe abstrata base para qualquer tipo de caminho no sistema.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import Enum
 from pathlib import Path
 from os import stat_result
@@ -43,6 +43,7 @@ class CaminhoBase(ABC):
         _path (Path): Caminho absoluto do sistema de arquivos.
         _existe (bool): Indica se o caminho existe fisicamente.
         _tipo_caminho (TipoCaminho): Tipo do caminho identificado.
+        _data_criacao (datetime | None): Data da criação.
         _data_modificacao (datetime | None): Data da última modificação.
         _tamanho_bytes (int | None): Tamanho do conteúdo em bytes.
     """
@@ -76,14 +77,19 @@ class CaminhoBase(ABC):
         if self._existe:
             try:
                 stat: stat_result = self._path.stat()
+                self._data_criacao: datetime | None = datetime.fromtimestamp(
+                    timestamp=stat.st_mtime
+                )
                 self._data_modificacao: datetime | None = datetime.fromtimestamp(
-                    stat.st_mtime
+                    timestamp=stat.st_ctime
                 )
                 self._tamanho_bytes: int | None = stat.st_size
             except OSError:
+                self._data_criacao = None
                 self._data_modificacao = None
                 self._tamanho_bytes = None
         else:
+            self._data_criacao = None
             self._data_modificacao = None
             self._tamanho_bytes = None
 
@@ -128,6 +134,16 @@ class CaminhoBase(ABC):
         return self._path.name
 
     @property
+    def data_criacao(self) -> datetime | None:
+        """
+        Retorna a data da criação, se disponível.
+
+        Returns:
+            datetime | None: Data de criação ou None se não aplicável.
+        """
+        return self._data_criacao
+
+    @property
     def data_modificacao(self) -> datetime | None:
         """
         Retorna a data da última modificação, se disponível.
@@ -155,14 +171,3 @@ class CaminhoBase(ABC):
             str: Representação como string do caminho absoluto.
         """
         return str(self._path)
-
-    @abstractmethod
-    def criar_se_nao_existir(self) -> bool:
-        """
-        Cria o caminho físico caso ele ainda não exista.
-
-        Returns:
-            bool: True se o caminho foi criado com sucesso,
-                  False se já existia ou houve erro.
-        """
-        return False  # pylint: disable=unnecessary-ellipsis

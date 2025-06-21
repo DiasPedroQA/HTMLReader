@@ -8,13 +8,13 @@ echo "Criando estrutura de diretórios..."
 
 mkdir -p src/core/models
 mkdir -p src/core/services
-mkdir -p src/core/utils
+mkdir -p src/core/services
 mkdir -p src/interfaces/api/routes
 mkdir -p src/interfaces/cli
 mkdir -p src/interfaces/gui
 mkdir -p tests/core/models
 mkdir -p tests/core/services
-mkdir -p tests/core/utils
+mkdir -p tests/core/services
 
 echo "Movendo arquivos para a nova estrutura..."
 
@@ -29,9 +29,9 @@ mv src/core/services/__init__.py src/core/services/__init__.py 2>/dev/null || tr
 mv src/core/services/processador_service.py src/core/services/processador_service.py 2>/dev/null || true
 mv src/core/services/visor_service.py src/core/services/visor_service.py 2>/dev/null || true
 
-# Core utils
-mv src/core/utils/__init__.py src/core/utils/__init__.py 2>/dev/null || true
-mv src/core/utils/system_utils.py src/core/utils/system_utils.py 2>/dev/null || true
+# Core services
+mv src/core/services/__init__.py src/core/services/__init__.py 2>/dev/null || true
+mv src/core/services/system_services.py src/core/services/system_services.py 2>/dev/null || true
 
 # Interfaces API
 mv src/interfaces/api/__init__.py src/interfaces/api/__init__.py 2>/dev/null || true
@@ -53,10 +53,10 @@ mv tests/core/models/test_directory_model.py tests/core/models/test_directory_mo
 mv tests/core/models/test_file_model.py tests/core/models/test_file_model.py 2>/dev/null || true
 mv tests/core/services/test_text_analysis_service.py tests/core/services/test_text_analysis_service.py 2>/dev/null || true
 mv tests/core/services/test_text_file_service.py tests/core/services/test_text_file_service.py 2>/dev/null || true
-mv tests/core/utils/test_encoding_utils.py tests/core/utils/test_encoding_utils.py 2>/dev/null || true
-mv tests/core/utils/test_file_utils.py tests/core/utils/test_file_utils.py 2>/dev/null || true
-mv tests/core/utils/test_path_utils.py tests/core/utils/test_path_utils.py 2>/dev/null || true
-mv tests/core/utils/test_system_utils.py tests/core/utils/test_system_utils.py 2>/dev/null || true
+mv tests/core/services/test_encoding_services.py tests/core/services/test_encoding_services.py 2>/dev/null || true
+mv tests/core/services/test_file_services.py tests/core/services/test_file_services.py 2>/dev/null || true
+mv tests/core/services/test_path_services.py tests/core/services/test_path_services.py 2>/dev/null || true
+mv tests/core/services/test_system_services.py tests/core/services/test_system_services.py 2>/dev/null || true
 
 echo "Estrutura refatorada com sucesso!"
 

@@ -21,7 +21,6 @@ from getpass import getuser
 from pathlib import Path
 from platform import system
 from enum import Enum
-from typing import Optional
 
 
 class SistemaOperacional(str, Enum):
@@ -38,7 +37,7 @@ class SistemaOperacional(str, Enum):
     MACOS = "macos"
 
     @classmethod
-    def detectar(cls, sistema_simulado: Optional[str] = None) -> "SistemaOperacional":
+    def detectar(cls, sistema_simulado: str | None = None) -> "SistemaOperacional":
         """Detecta o sistema operacional em execução.
 
         Args:
@@ -59,7 +58,7 @@ class SistemaOperacional(str, Enum):
             <SistemaOperacional.WINDOWS: 'windows'>
         """
         nome_bruto: str = (sistema_simulado or system()).casefold()
-        nome: str = nome_bruto.split(".")[-1]  # Pega o último segmento após ponto
+        nome: str = nome_bruto.split(sep=".")[-1]
 
         sistemas_permitidos: dict[str, "SistemaOperacional"] = {
             "windows": cls.WINDOWS,
@@ -77,7 +76,7 @@ class SistemaOperacional(str, Enum):
         raise ValueError(f"Sistema não suportado: {nome_bruto} (processado: {nome})")
 
     @classmethod
-    def obter_raiz_usuario(cls, sistema_desejado: Optional[str] = None) -> Path:
+    def obter_raiz_usuario(cls, sistema_desejado: str | None = None) -> Path:
         """Obtém o caminho raiz do diretório do usuário para o sistema especificado.
 
         Args:

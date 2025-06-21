@@ -9,7 +9,6 @@ A estrutura do HTMLReader foi desenhada para separar claramente responsabilidade
 - **src/core**: Lógica central do sistema, incluindo modelos (schemas Pydantic), serviços de processamento e utilitários.
   - **models**: Schemas e validações para arquivos, pastas e operações.
   - **services**: Funções de processamento, leitura, listagem e prévia de arquivos.
-  - **utils**: Funções auxiliares para manipulação de caminhos, sistema e arquivos.
 - **src/interfaces**: Pontos de entrada para interação do usuário.
   - **gui**: Interface gráfica baseada em Tkinter.
   - **cli**: Interface de linha de comando para uso via terminal.

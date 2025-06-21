@@ -134,7 +134,7 @@
 #             itens: str = "\n".join(f.name for f in sorted(caminho_pasta.iterdir()))
 #             conteudo: str = f"Conteúdo da pasta {caminho_pasta}:\n\n{itens}"
 #         except OSError as e:
-#             conteudo = f"Erro ao listar conteúdo da pasta:\n{e}"
+#             conteudo = f"Erro ao coletar conteúdo da pasta:\n{e}"
 
 #         self.texto_visualizacao.insert("1.0", conteudo)
 #         self.texto_visualizacao.config(state="disabled")

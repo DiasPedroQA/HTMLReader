@@ -18,7 +18,7 @@ Classes:
 from pathlib import Path
 
 from core.models.model_caminho_base import CaminhoBase
-from core.utils.formatadores import (
+from core.services.formatadores import (
     converter_bytes_em_tamanho_legivel,
     formatar_data_para_string,
     obter_extensao_legivel,
@@ -57,7 +57,7 @@ class Arquivo(CaminhoBase):
         Returns:
             str: Descrição legível da extensão (ex: 'Texto', 'Imagem PNG').
         """
-        return obter_extensao_legivel(extensao=self.extensao)
+        return obter_extensao_legivel(formato_padrao_extensao=self._path.suffix)
 
     @property
     def tamanho_legivel(self) -> str:
@@ -72,7 +72,7 @@ class Arquivo(CaminhoBase):
         return converter_bytes_em_tamanho_legivel(tamanho_bytes=self.tamanho_em_bytes)
 
     @property
-    def data_modificacao_formatada(self) -> str | None:
+    def data_modificacao_legivel(self) -> str | None:
         """
         Retorna a data da última modificação do arquivo em formato legível.
 
@@ -81,6 +81,18 @@ class Arquivo(CaminhoBase):
         """
         if self.data_modificacao:
             return formatar_data_para_string(data_e_hora=self.data_modificacao)
+        return None
+
+    @property
+    def data_criacao_legivel(self) -> str | None:
+        """
+        Retorna a data da criação do arquivo em formato legível.
+
+        Returns:
+            str | None: Data formatada, ou None se indisponível.
+        """
+        if self.data_criacao:
+            return formatar_data_para_string(data_e_hora=self.data_criacao)
         return None
 
     @property
@@ -103,7 +115,7 @@ class Arquivo(CaminhoBase):
         """
         return self._path.parent
 
-    def criar_se_nao_existir(self) -> bool:
+    def criar_arquivo_se_nao_existir(self) -> bool:
         """
         Cria o arquivo se ele não existir, criando também os diretórios necessários.
 
