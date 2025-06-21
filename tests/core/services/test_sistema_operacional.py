@@ -66,4 +66,4 @@ class TestSistemaOperacional:
         with pytest.raises(
             expected_exception=ValueError, match="Sem suporte para sistema"
         ):
-            SistemaOperacional.obter_raiz_usuario(sistema_desejado="plan9")
+            SistemaOperacional.obter_raiz_usuario(sistema_desejado="android")

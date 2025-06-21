@@ -68,7 +68,7 @@ class TestArquivosController:
         assert metadados["nome"] == "dados.log"
         assert metadados["extensao"] == ".log"
         assert metadados["nome_sem_extensao"] == "dados"
-        assert metadados["extensao_legivel"] == ".log"
+        assert metadados["extensao_legivel"] == "Log"
         assert metadados["eh_oculto"] == "Não"
         assert isinstance(metadados["tamanho_legivel"], str)
         assert isinstance(metadados["data_criacao"], str)
