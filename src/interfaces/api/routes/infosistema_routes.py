@@ -88,7 +88,7 @@
 
 
 # @router.get(path="/", response_model=list[ItemDePasta])
-# async def listar_conteudo(
+# async def ler_e_listar_pasta(
 #     caminho: str = Query(default=..., description="Caminho do diretório a ser listado"),
 # ) -> list[ItemDePasta]:
 #     """

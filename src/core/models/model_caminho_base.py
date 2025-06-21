@@ -1,129 +1,168 @@
 """
 Módulo de abstrações para caminhos no sistema de arquivos.
 
-Define uma estrutura orientada a objetos para representar caminhos genéricos,
-arquivos e pastas, com capacidade de manipulação e verificação de existência.
+Este módulo fornece uma estrutura orientada a objetos para representar caminhos
+genéricos, arquivos e pastas, com capacidade de manipulação e verificação de existência.
 
 Classes:
-    - CaminhoBase: Classe abstrata que define a interface comum para qualquer tipo de caminho.
-    - Arquivo: Representa um arquivo. Permite criação e leitura condicional do conteúdo.
-    - Pasta: Representa uma pasta. Permite criação e listagem de conteúdo recursivo.
+    TipoCaminho (Enum): Enumeração que representa o tipo de caminho.
+    CaminhoBase (ABC): Classe abstrata base para qualquer tipo de caminho no sistema.
 """
 
-from pathlib import Path
 from abc import ABC, abstractmethod
+from enum import Enum
+from pathlib import Path
+from os import stat_result
+from datetime import datetime
+
+
+class TipoCaminho(str, Enum):
+    """
+    Enumeração que define os tipos possíveis de caminhos no sistema de arquivos.
+
+    Valores:
+        ARQUIVO: Representa um arquivo comum.
+        PASTA: Representa um diretório.
+        DESCONHECIDO: Tipo indefinido ou inexistente.
+    """
+
+    ARQUIVO = "Arquivo"
+    PASTA = "Pasta"
+    DESCONHECIDO = "_*-*_"
 
 
 class CaminhoBase(ABC):
-    """Classe base abstrata para representar um caminho do sistema de arquivos."""
+    """
+    Classe abstrata base para representação de caminhos no sistema de arquivos.
+
+    Esta classe define a interface comum e propriedades compartilhadas por arquivos
+    e diretórios, como verificação de existência, tipo de caminho, nome, data de
+    modificação e tamanho em bytes.
+
+    Atributos:
+        _path (Path): Caminho absoluto do sistema de arquivos.
+        _existe (bool): Indica se o caminho existe fisicamente.
+        _tipo_caminho (TipoCaminho): Tipo do caminho identificado.
+        _data_modificacao (datetime | None): Data da última modificação.
+        _tamanho_bytes (int | None): Tamanho do conteúdo em bytes.
+    """
 
     def __init__(self, caminho: str | Path) -> None:
+        """
+        Inicializa a instância com base em uma string ou objeto Path.
+
+        Args:
+            caminho (str | Path): Caminho a ser representado.
+        """
         self._path: Path = Path(caminho).expanduser().absolute()
         self._atualizar_estado()
 
     def _atualizar_estado(self) -> None:
-        """Atualiza o estado interno de existência."""
+        """
+        Atualiza o estado interno do objeto.
+
+        Define a existência do caminho, seu tipo (arquivo, pasta ou desconhecido),
+        data da última modificação e tamanho em bytes.
+        """
         self._existe: bool = self._path.exists()
+        self._tipo_caminho: TipoCaminho = (
+            TipoCaminho.ARQUIVO
+            if self._path.is_file()
+            else TipoCaminho.PASTA
+            if self._path.is_dir()
+            else TipoCaminho.DESCONHECIDO
+        )
+
+        if self._existe:
+            try:
+                stat: stat_result = self._path.stat()
+                self._data_modificacao: datetime | None = datetime.fromtimestamp(
+                    stat.st_mtime
+                )
+                self._tamanho_bytes: int | None = stat.st_size
+            except OSError:
+                self._data_modificacao = None
+                self._tamanho_bytes = None
+        else:
+            self._data_modificacao = None
+            self._tamanho_bytes = None
+
+    @property
+    def retornar_o_tipo(self) -> TipoCaminho:
+        """
+        Retorna o tipo de caminho identificado (arquivo, pasta ou desconhecido).
+
+        Returns:
+            TipoCaminho: Enumeração correspondente ao tipo do caminho.
+        """
+        return self._tipo_caminho
 
     @property
     def caminho_absoluto(self) -> Path:
-        """Retorna o caminho absoluto como objeto Path."""
+        """
+        Retorna o caminho absoluto como objeto `Path`.
+
+        Returns:
+            Path: Caminho completo no sistema de arquivos.
+        """
         return self._path
 
     @property
     def caminho_existe(self) -> bool:
-        """Indica se o caminho existe fisicamente no sistema."""
+        """
+        Verifica se o caminho existe fisicamente no sistema de arquivos.
+
+        Returns:
+            bool: True se o caminho existe, False caso contrário.
+        """
         return self._existe
 
     @property
     def nome_caminho(self) -> str:
-        """Retorna apenas o nome do último componente do caminho."""
+        """
+        Retorna o nome final do caminho (arquivo ou pasta).
+
+        Returns:
+            str: Nome do arquivo ou diretório.
+        """
         return self._path.name
 
+    @property
+    def data_modificacao(self) -> datetime | None:
+        """
+        Retorna a data da última modificação, se disponível.
+
+        Returns:
+            datetime | None: Data de modificação ou None se não aplicável.
+        """
+        return self._data_modificacao
+
+    @property
+    def tamanho_em_bytes(self) -> int | None:
+        """
+        Retorna o tamanho do conteúdo em bytes, se aplicável.
+
+        Returns:
+            int | None: Tamanho em bytes, ou None se não aplicável.
+        """
+        return self._tamanho_bytes
+
     def __str__(self) -> str:
+        """
+        Retorna a representação textual do caminho (forma absoluta).
+
+        Returns:
+            str: Representação como string do caminho absoluto.
+        """
         return str(self._path)
 
     @abstractmethod
     def criar_se_nao_existir(self) -> bool:
-        """Cria o caminho no sistema de arquivos, se não existir."""
-        ...  # pylint: disable=unnecessary-ellipsis
-
-
-class Arquivo(CaminhoBase):
-    """Representa um arquivo no sistema de arquivos."""
-
-    def criar_se_nao_existir(self) -> bool:
-        """Cria o arquivo apenas se ele ainda não existir."""
-        if self.caminho_existe:
-            return False
-        try:
-            self._path.parent.mkdir(parents=True, exist_ok=True)
-            self._path.touch()
-            self._atualizar_estado()
-            return True
-        except OSError as erro:
-            print(f"Erro ao criar arquivo: {erro}")
-            return False
-
-    def escrever_conteudo(self, conteudo: str) -> bool:
-        """Escreve conteúdo no arquivo somente se ele ainda não existir.
-
-        Retorna:
-            bool: True se o arquivo foi criado e escrito com sucesso.
         """
-        if self.caminho_existe:
-            print("Arquivo já existe. Escrita não permitida.")
-            return False
+        Cria o caminho físico caso ele ainda não exista.
 
-        try:
-            self._path.parent.mkdir(parents=True, exist_ok=True)
-            with open(file=self._path, mode="x", encoding="utf-8") as arquivo_destino:
-                arquivo_destino.write(conteudo)
-            self._atualizar_estado()
-            return True
-        except OSError as erro:
-            print(f"Erro ao escrever no arquivo: {erro}")
-            return False
-
-    def ler_conteudo(self) -> str | None:
-        """Lê e retorna o conteúdo do arquivo, se existir."""
-        if not self.caminho_existe:
-            return None
-        try:
-            return self._path.read_text(encoding="utf-8")
-        except OSError as erro:
-            print(f"Erro ao ler o arquivo: {erro}")
-            return None
-
-
-class Pasta(CaminhoBase):
-    """Representa uma pasta no sistema de arquivos."""
-
-    def criar_se_nao_existir(self) -> bool:
-        """Cria a pasta apenas se ela ainda não existir."""
-        if self.caminho_existe:
-            return False
-        try:
-            self._path.mkdir(parents=True)
-            self._atualizar_estado()
-            return True
-        except OSError as erro:
-            print(f"Erro ao criar pasta: {erro}")
-            return False
-
-    def listar_conteudo(self) -> list[CaminhoBase]:
-        """Lista os arquivos e subpastas da pasta atual.
-
-        Retorna:
-            list[CaminhoBase]: Objetos Arquivo ou Pasta para cada item.
+        Returns:
+            bool: True se o caminho foi criado com sucesso,
+                  False se já existia ou houve erro.
         """
-        if not self.caminho_existe:
-            return []
-
-        conteudo: list[CaminhoBase] = []
-        for item in self._path.iterdir():
-            if item.is_dir():
-                conteudo.append(Pasta(caminho=item))
-            elif item.is_file():
-                conteudo.append(Arquivo(caminho=item))
-        return conteudo
+        return False  # pylint: disable=unnecessary-ellipsis

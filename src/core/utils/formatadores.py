@@ -1,23 +1,12 @@
 """
-Funções auxiliares para formatação de dados da classe Pasta.
+Funções auxiliares para formatação de dados de arquivos e pastas.
 """
 
 from datetime import datetime
 
 
 def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
-    """Converte um valor em bytes para um formato de tamanho de arquivo legível.
-
-    Percorre as unidades de medida (B, KB, MB, GB, TB), dividindo o valor
-    por 1024 a cada iteração até encontrar a unidade apropriada.
-
-    Args:
-        tamanho_bytes (int): O tamanho em bytes a ser convertido.
-
-    Returns:
-        str: Uma string formatada representando o tamanho com duas casas
-             decimais e a unidade correspondente (e.g., "1.50 MB").
-    """
+    """Converte um valor em bytes para um formato legível."""
     unidades: list[str] = ["B", "KB", "MB", "GB", "TB"]
     tamanho = float(tamanho_bytes)
     unidade_index = 0
@@ -30,12 +19,30 @@ def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
 
 
 def formatar_data_para_string(data_e_hora: datetime) -> str:
-    """Formata um objeto datetime para uma string no formato 'dd/mm/AAAA HH:MM:SS'.
+    """Formata datetime para 'dd/mm/aaaa HH:MM:SS'."""
+    return data_e_hora.strftime(format="%d/%m/%Y %H:%M:%S")
 
-    Args:
-        data (datetime): O objeto datetime a ser formatado.
 
-    Returns:
-        str: A data e hora formatadas como uma string.
-    """
-    return data_e_hora.strftime("%d/%m/%Y %H:%M:%S")
+def obter_extensao_legivel(extensao: str) -> str:
+    """Converte extensão técnica para nome amigável."""
+    mapa: dict[str, str] = {
+        ".txt": "Texto",
+        ".md": "Markdown",
+        ".json": "JSON",
+        ".csv": "Planilha CSV",
+        ".py": "Script Python",
+        ".xml": "XML",
+        ".html": "HTML",
+        ".log": "Log",
+    }
+    return mapa.get(extensao.lower(), extensao.strip(".").upper())
+
+
+def formatar_booleano(valor: bool) -> str:
+    """Converte booleano para 'Sim' ou 'Não'."""
+    return "Sim" if valor else "Não"
+
+
+def formatar_nome_arquivo(nome: str, limite: int = 50) -> str:
+    """Trunca nomes longos de arquivo."""
+    return nome if len(nome) <= limite else nome[: limite - 3] + "..."
