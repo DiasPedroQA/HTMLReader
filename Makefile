@@ -1,4 +1,4 @@
-.PHONY: help venv install install-prod install-dev compile lint format test coverage coverage-html clean run run-cli run-gui run-api all
+.PHONY: help venv install install compile lint format test coverage coverage-html clean run run-cli run-gui run-api all
 
 VENV = .venv/bin
 
@@ -6,7 +6,7 @@ help:
 	@echo "Comandos disponíveis:"
 	@echo "  make venv          - Cria ambiente virtual .venv"
 	@echo "  make install       - Instala dependências (produção e dev)"
-	@echo "  make compile       - Gera requirements.txt e requirements-dev.txt via pip-tools"
+	@echo "  make compile       - Gera requirements.txt e requirements.txt via pip-tools"
 	@echo "  make lint          - Roda pylint e flake8"
 	@echo "  make format        - Roda black e isort"
 	@echo "  make test          - Executa testes com pytest"
@@ -21,17 +21,12 @@ help:
 venv:
 	python3 -m venv .venv
 
-install: install-dev
 
-install-prod: venv
+install:
 	$(VENV)/pip install -r requirements.txt
-
-install-dev: install-prod
-	$(VENV)/pip install -r requirements-dev.txt
 
 compile:
 	$(VENV)/pip-compile requirements.in -o requirements.txt
-	$(VENV)/pip-compile requirements-dev.in -o requirements-dev.txt
 
 lint:
 	$(VENV)/pylint src/ tests || true
@@ -64,5 +59,5 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	rm -rf .pytest_cache .mypy_cache .coverage htmlcov
 
-all: clean venv install-dev lint format test coverage-html
+all: clean venv install lint format test coverage-html
 	@echo "✅ Pipeline completa executada com sucesso!"

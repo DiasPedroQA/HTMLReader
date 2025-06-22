@@ -1,5 +1,7 @@
 # pyproject.toml consolidado para o projeto HTMLReader
 
+# pyproject.toml consolidado para o projeto HTMLReader
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -8,14 +10,14 @@ build-backend = "poetry.core.masonry.api"
 name = "HTMLReader"
 version = "0.1.0"
 description = "Aplicação modular para leitura, análise e processamento de arquivos HTML e texto"
-authors = ["Pedro PM Dias <seu-email@exemplo.com>"]
+authors = ["Pedro PM Dias <diaspedro.dev@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
 packages = [
   { include = "core", from = "src" },
   { include = "interfaces", from = "src" }
 ]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -33,13 +35,9 @@ flake8 = "^7.0.0"
 bandit = "^1.8.0"
 mypy = "^1.0.0"
 ipdb = "^0.13.0"
-httpx = "^0.27.0"
 types-beautifulsoup4 = "^4.12.0"
 types-requests = "^2.31.0"
 pylint = "^3.0.0"
-
-[tool.setuptools.package-data]
-"core.models" = ["py.typed"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"

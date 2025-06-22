@@ -8,6 +8,7 @@ Define a classe `Pasta`, especialização de `CaminhoBase`, com operações comu
 - Contagem por extensão
 - Detecção de arquivos ocultos
 """
+
 from collections import Counter
 from pathlib import Path
 

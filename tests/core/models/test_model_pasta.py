@@ -2,6 +2,7 @@
 Testes unitários para a classe Pasta,
 responsável pela manipulação de diretórios no sistema de arquivos.
 """
+
 from collections.abc import Generator
 from pathlib import Path
 from tempfile import TemporaryDirectory

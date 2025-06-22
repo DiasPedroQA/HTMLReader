@@ -21,8 +21,8 @@ class TestSistemaOperacional:
     """Classe de testes para os métodos da enumeração `SistemaOperacional`."""
 
     @pytest.mark.parametrize(
-        argnames="entrada, esperado",
-        argvalues=[
+        "entrada, esperado",
+        [
             ("windows", SistemaOperacional.WINDOWS),
             ("Windows 11", SistemaOperacional.WINDOWS),
             ("linux", SistemaOperacional.LINUX),
@@ -37,15 +37,15 @@ class TestSistemaOperacional:
         resultado: SistemaOperacional = SistemaOperacional.detectar(sistema_simulado=entrada)
         assert resultado == esperado
 
-    @pytest.mark.parametrize(argnames="sistema_invalido", argvalues=["beos", "atari", "plan9"])
+    @pytest.mark.parametrize("sistema_invalido", ["beos", "atari", "plan9"])
     def test_detectar_sistema_operacional_invalido(self, sistema_invalido: str) -> None:
         """Verifica se uma exceção é lançada para sistemas não suportados."""
         with pytest.raises(expected_exception=ValueError, match="Sistema não suportado"):
             SistemaOperacional.detectar(sistema_simulado=sistema_invalido)
 
     @pytest.mark.parametrize(
-        argnames="sistema, esperado_prefixo",
-        argvalues=[
+        "sistema, esperado_prefixo",
+        [
             ("windows", Path("C:/Users/")),
             ("linux", Path("/home/")),
             ("macos", Path("/Users/")),
