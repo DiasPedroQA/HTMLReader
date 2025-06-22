@@ -32,7 +32,6 @@ HTMLReader/
 ├── Makefile                # Tarefas automatizadas
 ├── pyproject.toml          # Configurações de build, lint e testes
 ├── requirements.txt        # Dependências de produção (pip-tools/Poetry)
-├── requirements-dev.txt    # Dependências de desenvolvimento
 └── README.md               # Documentação do projeto
 
 ```

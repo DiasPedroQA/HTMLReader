@@ -67,7 +67,5 @@
         "PYTHONPATH": "${workspaceFolder}/src"
     },
     "python.envFile": "${workspaceFolder}/.env",
-    "github-actions.workflows.pinned.workflows": [
-        ".github/workflows/CI-CD_pipeline.yml"
-    ]
+    "github-actions.workflows.pinned.workflows": []
 }
