@@ -60,14 +60,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Instalar dependências e pacote
+      - name: Instalar dependências de desenvolvimento
         run: |
           pip install pip-tools
-          pip-sync requirements-dev.txt
-          pip install -e .
+          pip-sync requirements*.txt
+
+      - name: Instalar pacote em modo editável
+        run: pip install -e .
 
       - name: Rodar testes com cobertura
-        run: pytest
+        run: pytest --cov=htmlreader tests --maxfail=1 --disable-warnings -v
 
       - name: Gerar relatório de cobertura
         run: coverage xml

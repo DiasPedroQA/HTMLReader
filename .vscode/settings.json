@@ -53,7 +53,7 @@
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
-        // "**/__init__.py": true,
+        "**/__init__.py": true,
         "**/.mypy_cache": true,
         "**/.pytest_cache": true,
         "**/__pycache__": true,
