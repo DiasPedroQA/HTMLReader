@@ -189,5 +189,8 @@
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/src"
     },
-    "python.envFile": "${workspaceFolder}/.env"
+    "python.envFile": "${workspaceFolder}/.env",
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/CI-CD_pipeline.yml"
+    ]
 }
