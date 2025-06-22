@@ -85,4 +85,3 @@ class TestPasta:
         resultado: dict[str, int] = pasta.contar_por_extensao()
         assert resultado[".log"] == 1
         assert resultado[".txt"] == 2
-        # assert resultado[".html"] == 1

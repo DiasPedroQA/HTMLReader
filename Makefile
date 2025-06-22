@@ -1,48 +1,68 @@
-.PHONY: help venv install lint format test clean
+.PHONY: help venv install install-prod install-dev compile lint format test coverage coverage-html clean run run-cli run-gui run-api all
+
+VENV = .venv/bin
 
 help:
 	@echo "Comandos disponíveis:"
-	@echo "  make venv      - Cria ambiente virtual .venv"
-	@echo "  make install   - Instala dependências no .venv"
-	@echo "  make lint      - Roda pylint e flake8"
-	@echo "  make format    - Roda black e isort"
-	@echo "  make test      - Executa todos os testes com pytest"
-	@echo "  make clean     - Remove arquivos temporários e __pycache__"
-	@echo "  make run       - Roda a aplicação principal"
+	@echo "  make venv          - Cria ambiente virtual .venv"
+	@echo "  make install       - Instala dependências (produção e dev)"
+	@echo "  make compile       - Gera requirements.txt e requirements-dev.txt via pip-tools"
+	@echo "  make lint          - Roda pylint e flake8"
+	@echo "  make format        - Roda black e isort"
+	@echo "  make test          - Executa testes com pytest"
+	@echo "  make coverage      - Mostra cobertura de testes no terminal"
+	@echo "  make coverage-html - Gera cobertura de testes em HTML"
+	@echo "  make run-cli       - Executa a interface de linha de comando"
+	@echo "  make run-gui       - Executa a interface gráfica"
+	@echo "  make run-api       - Executa a API FastAPI"
+	@echo "  make clean         - Remove arquivos temporários"
+	@echo "  make all           - Executa pipeline completa"
 
 venv:
 	python3 -m venv .venv
 
-install: venv
-	.venv/bin/pip install --upgrade pip
-	@if [ -f requirements.txt ]; then \
-		.venv/bin/pip install -r requirements.txt; \
-	fi
-	@if [ -f requirements-dev.txt ]; then \
-		.venv/bin/pip install -r requirements-dev.txt; \
-	fi
+install: install-dev
+
+install-prod: venv
+	$(VENV)/pip install -r requirements.txt
+
+install-dev: install-prod
+	$(VENV)/pip install -r requirements-dev.txt
+
+compile:
+	$(VENV)/pip-compile requirements.in -o requirements.txt
+	$(VENV)/pip-compile requirements-dev.in -o requirements-dev.txt
 
 lint:
-	.venv/bin/pylint src/ tests || true
-	.venv/bin/flake8 src/ tests || true
+	$(VENV)/pylint src/ tests || true
+	$(VENV)/flake8 src/ tests || true
 
 format:
-	.venv/bin/black src/ tests/
-	.venv/bin/isort src/ tests/
+	$(VENV)/black src/ tests/
+	$(VENV)/isort src/ tests/
 
 test:
-	PYTHONPATH=src .venv/bin/pytest tests --maxfail=1 --disable-warnings -v
+	PYTHONPATH=src $(VENV)/pytest tests --maxfail=1 --disable-warnings -v
+
+coverage:
+	PYTHONPATH=src $(VENV)/pytest --cov=src tests --cov-report=term-missing
+
+coverage-html:
+	PYTHONPATH=src $(VENV)/pytest --cov=src tests --cov-report=html
+
+run-cli:
+	PYTHONPATH=src $(VENV)/python src/interfaces/cli/main_cli.py
+
+run-gui:
+	PYTHONPATH=src $(VENV)/python src/interfaces/gui/main_gui.py
+
+run-api:
+	PYTHONPATH=src $(VENV)/python src/interfaces/api/main_api.py
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	rm -rf .pytest_cache .mypy_cache .coverage htmlcov
 
-run:
-	PYTHONPATH=src .venv/bin/python -m src
-
-coverage-html:
-	PYTHONPATH=src .venv/bin/pytest --cov=src tests --cov-report=html
-
-all: clean venv install lint format test coverage-html
-	@echo "Pipeline completa executada com sucesso!"
+all: clean venv install-dev lint format test coverage-html
+	@echo "✅ Pipeline completa executada com sucesso!"

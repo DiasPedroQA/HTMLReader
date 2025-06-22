@@ -1,11 +1,23 @@
+# ========== DEPENDÊNCIAS DE PRODUÇÃO (INCLUÍDAS VIA requirements.in) ==========
 -r requirements.in
 
-bandit
-coverage
-fastapi
-BeautifulSoup
-flake8
-pydantic
-pytest
-pytest-cov
-httpx
+
+# ========== TESTES E COBERTURA ==========
+pytest                # Framework de testes
+pytest-cov            # Geração de relatório de cobertura com pytest
+coverage              # Ferramenta de medição de cobertura
+
+
+# ========== SEGURANÇA ==========
+bandit                # Verificador de segurança estática para código Python
+
+
+# ========== ESTILO, FORMATAÇÃO E TIPAGEM ==========
+flake8                # Linter para análise de estilo conforme PEP8
+black                 # Formatador de código automático
+isort                 # Organizador automático de imports
+mypy                  # Verificador de tipagem estática
+
+
+# ========== PARSE HTML (USO EXCLUSIVO EM TESTES) ==========
+beautifulsoup4        # Utilitário para parsing e navegação de HTML

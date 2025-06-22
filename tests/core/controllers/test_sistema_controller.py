@@ -14,7 +14,7 @@ from core.controllers.sistema_controller import ControladorSistema
 from core.models.model_arquivo import Arquivo
 from core.models.model_pasta import Pasta
 from core.models.model_caminho_base import CaminhoBase
-from core.services.sistema_operacional import SistemaOperacional
+from core.utils.sistema_operacional import SistemaOperacional
 
 
 @pytest.fixture

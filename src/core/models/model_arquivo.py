@@ -18,7 +18,7 @@ Classes:
 from pathlib import Path
 
 from core.models.model_caminho_base import CaminhoBase
-from core.services.formatadores import (
+from core.utils.formatadores import (
     converter_bytes_em_tamanho_legivel,
     formatar_data_para_string,
     obter_extensao_legivel,

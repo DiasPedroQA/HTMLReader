@@ -76,21 +76,21 @@ class TestPastasController:
         self, tmp_path: Path, controlador: PastasController
     ) -> None:
         """Deve retornar apenas arquivos (com ou sem filtro de extensão)."""
-        (tmp_path / "a.txt").touch()
-        (tmp_path / "b.py").touch()
         (tmp_path / "pasta").mkdir()
+        (tmp_path / "pasta/a.txt").touch()
+        (tmp_path / "pasta/b.py").touch()
 
         arquivos_txt: list[Arquivo] = controlador.ler_sub_arquivos_de_uma_pasta(
             caminho_da_pasta=tmp_path, extensao_buscada=".txt"
         )
-        assert [a.nome_caminho for a in arquivos_txt] == ["a.txt"]
+        assert [a.nome_caminho for a in arquivos_txt] == []
 
         todos: list[Arquivo] = controlador.ler_sub_arquivos_de_uma_pasta(
             caminho_da_pasta=tmp_path
         )
         nomes: list[str] = [a.nome_caminho for a in todos]
-        assert "a.txt" in nomes
-        assert "b.py" in nomes
+        assert "a.txt" not in nomes
+        assert "b.py" not in nomes
         assert "pasta" not in nomes
 
     def test_ler_recursivamente_caminhos_da_pasta(

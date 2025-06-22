@@ -1,27 +1,21 @@
-# pyproject.toml
-[tool.setuptools.package-data]
-"core.models" = ["py.typed"]
+# pyproject.toml consolidado para o projeto HTMLReader
 
-# mypy.ini
-[report]
-ignore_missing_imports = true
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "HTMLReader"
 version = "0.1.0"
 description = "Aplicação modular para leitura, análise e processamento de arquivos HTML e texto"
 authors = ["Pedro PM Dias <seu-email@exemplo.com>"]
-readme = "README.md"
 license = "MIT"
+readme = "README.md"
 requires-python = ">=3.10"
 packages = [
-    { include = "core", from = "src" },
-    { include = "interfaces", from = "src" }
+  { include = "core", from = "src" },
+  { include = "interfaces", from = "src" }
 ]
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -44,6 +38,9 @@ types-beautifulsoup4 = "^4.12.0"
 types-requests = "^2.31.0"
 pylint = "^3.0.0"
 
+[tool.setuptools.package-data]
+"core.models" = ["py.typed"]
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-v --cov=src --cov-report=term-missing --cov-report=html"
@@ -52,9 +49,7 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 asyncio_mode = "auto"
-filterwarnings = [
-    "ignore::DeprecationWarning"
-]
+filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.coverage.run]
 source = ["src"]

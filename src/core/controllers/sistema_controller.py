@@ -17,7 +17,7 @@ from functools import cached_property
 from core.models.model_arquivo import Arquivo
 from core.models.model_caminho_base import CaminhoBase
 from core.models.model_pasta import Pasta
-from core.services.sistema_operacional import SistemaOperacional
+from core.utils.sistema_operacional import SistemaOperacional
 
 
 class ControladorSistema:

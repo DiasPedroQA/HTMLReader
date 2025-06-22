@@ -52,16 +52,22 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Instalar dependências de desenvolvimento
+      - name: Cache dependências
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Instalar dependências e pacote
         run: |
           pip install pip-tools
           pip-sync requirements-dev.txt
-
-      - name: Instalar pacote em modo editável
-        run: pip install -e .
+          pip install -e .
 
       - name: Rodar testes com cobertura
-        run: pytest --cov=htmlreader tests --maxfail=1 --disable-warnings -v
+        run: pytest
 
       - name: Gerar relatório de cobertura
         run: coverage xml

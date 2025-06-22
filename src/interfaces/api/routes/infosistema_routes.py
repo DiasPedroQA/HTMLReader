@@ -7,11 +7,11 @@
 # from core.controllers.pasta_controller import PastaController
 # from core.controllers.conversao_controller import ConversaoController
 # from core.controllers.file_path_controller import listar_arquivos_html
-# from core.services.visor_service import ler_conteudo_arquivo
-# from core.services.system_info import (
+# from core.utils.visor_service import ler_conteudo_arquivo
+# from core.utils.system_info import (
 #     obter_infos_sistema,
 # )  # crie esse service com PathBuilder, se ainda não existir
-# from core.services.visor_service import detalhar_arquivo
+# from core.utils.visor_service import detalhar_arquivo
 # from fastapi import APIRouter, UploadFile, File, HTTPException
 # from fastapi.responses import JSONResponse
 
