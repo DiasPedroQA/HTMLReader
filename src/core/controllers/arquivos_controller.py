@@ -8,6 +8,7 @@ Utiliza a classe `Arquivo` para realizar operações como:
 """
 
 from pathlib import Path
+
 from core.models.model_arquivo import Arquivo
 
 
@@ -27,9 +28,7 @@ class ArquivosController:
         """
         objeto_arquivo = Arquivo(caminho=caminho_arquivo)
         if conteudo:
-            objeto_arquivo.escrever_conteudo(
-                conteudo_arquivo=conteudo, sobrescrever=False
-            )
+            objeto_arquivo.escrever_conteudo(conteudo_arquivo=conteudo, sobrescrever=False)
         else:
             objeto_arquivo.criar_arquivo_se_nao_existir()
         return objeto_arquivo
@@ -47,9 +46,7 @@ class ArquivosController:
         objeto_arquivo = Arquivo(caminho=caminho_arquivo)
         return objeto_arquivo.ler_conteudo()
 
-    def ler_metadados_arquivo(
-        self, caminho_arquivo: str | Path
-    ) -> dict[str, str | None]:
+    def ler_metadados_arquivo(self, caminho_arquivo: str | Path) -> dict[str, str | None]:
         """
         Lê informações de metadados de um arquivo, sem o conteúdo.
 

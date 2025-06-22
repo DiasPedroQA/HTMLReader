@@ -21,8 +21,8 @@ from core.models.model_caminho_base import CaminhoBase
 from core.utils.formatadores import (
     converter_bytes_em_tamanho_legivel,
     formatar_data_para_string,
-    obter_extensao_legivel,
     formatar_nome_arquivo,
+    obter_extensao_legivel,
 )
 
 
@@ -57,7 +57,7 @@ class Arquivo(CaminhoBase):
         Returns:
             str: Descrição legível da extensão (ex: 'Texto', 'Imagem PNG').
         """
-        return obter_extensao_legivel(formato_padrao_extensao=self._path.suffix)
+        return obter_extensao_legivel(extensao=self._path.suffix)
 
     @property
     def tamanho_legivel(self) -> str:
@@ -67,9 +67,9 @@ class Arquivo(CaminhoBase):
         Returns:
             str: Tamanho legível (ex: '1.23 MB').
         """
-        if self.tamanho_em_bytes is None:
+        if self.tamanho_bytes is None:
             return "0 B"
-        return converter_bytes_em_tamanho_legivel(tamanho_bytes=self.tamanho_em_bytes)
+        return converter_bytes_em_tamanho_legivel(tamanho_bytes=self.tamanho_bytes)
 
     @property
     def data_modificacao_legivel(self) -> str | None:
@@ -132,9 +132,7 @@ class Arquivo(CaminhoBase):
         except OSError:
             return False
 
-    def escrever_conteudo(
-        self, conteudo_arquivo: str, sobrescrever: bool = False
-    ) -> bool:
+    def escrever_conteudo(self, conteudo_arquivo: str, sobrescrever: bool = False) -> bool:
         """
         Escreve conteúdo no arquivo, com controle de sobrescrita.
 

@@ -17,10 +17,10 @@ Classes:
         com métodos para detecção e operações relacionadas.
 """
 
+from enum import Enum
 from getpass import getuser
 from pathlib import Path
 from platform import system
-from enum import Enum
 
 
 class SistemaOperacional(str, Enum):

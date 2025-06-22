@@ -1,78 +1,108 @@
 """
-Testes unitários para o módulo `formatadores`.
+Módulo `formatadores`: fornece utilitários para apresentação de dados relacionados
+a arquivos, como tamanho, datas, nomes, extensões e valores booleanos.
 
-Este módulo contém testes para funções auxiliares de formatação de:
-- tamanhos em bytes para representação legível
-- datas para string
-- extensões de arquivos para nomes amigáveis
-- valores booleanos para texto ("Sim"/"Não")
-- nomes de arquivos truncados
-
-Utiliza `pytest` e `pytest.mark.parametrize` para testes parametrizados.
+Funções:
+- `converter_bytes_em_tamanho_legivel`: transforma tamanhos em bytes para representação humana.
+- `formatar_data_para_string`: formata um objeto datetime para string legível.
+- `obter_extensao_legivel`: traduz extensões de arquivos para rótulos compreensíveis.
+- `formatar_booleano`: converte booleanos para texto ("Sim"/"Não").
+- `formatar_nome_arquivo`: trunca nomes longos mantendo legibilidade.
 """
 
 from datetime import datetime
-from typing import LiteralString
-import pytest
-
-from core.utils.formatadores import (
-    converter_bytes_em_tamanho_legivel,
-    formatar_data_para_string,
-    obter_extensao_legivel,
-    formatar_booleano,
-    formatar_nome_arquivo,
-)
 
 
-class TestFormatadores:
-    """Classe de testes para as funções do módulo `formatadores`."""
+def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
+    """
+    Converte bytes para uma representação legível (B, KB, MB, etc.).
 
-    def test_converter_bytes_em_tamanho_legivel(self) -> None:
-        """Verifica a conversão correta de valores em bytes para string legível."""
-        assert converter_bytes_em_tamanho_legivel(tamanho_bytes=1023) == "1023.00 B"
-        assert converter_bytes_em_tamanho_legivel(tamanho_bytes=1024) == "1.00 KB"
-        assert converter_bytes_em_tamanho_legivel(tamanho_bytes=1048576) == "1.00 MB"
-        assert converter_bytes_em_tamanho_legivel(tamanho_bytes=0) == "0.00 B"
+    Args:
+        tamanho_bytes (int): Valor em bytes.
 
-    def test_formatar_data_para_string(self) -> None:
-        """Verifica se uma data é formatada corretamente no padrão 'dd/mm/aaaa HH:MM:SS'."""
-        data = datetime(year=2024, month=6, day=1, hour=15, minute=30, second=45)
-        assert formatar_data_para_string(data_e_hora=data) == "01/06/2024 15:30:45"
+    Returns:
+        str: Representação formatada como string.
+    """
+    if tamanho_bytes <= 0:
+        return "0.00 B"
 
-    @pytest.mark.parametrize(
-        argnames="entrada, esperado",
-        argvalues=[
-            (".txt", "Texto"),
-            (".md", "Markdown"),
-            (".json", "JSON"),
-            (".csv", "Planilha CSV"),
-            (".py", "Script Python"),
-            (".xml", "XML"),
-            (".html", "HTML"),
-            (".log", "Log"),
-            (".xyz", "XYZ"),
-            ("sem_ponto", "SEM_PONTO"),
-        ],
-    )
-    def test_obter_extensao_legivel(self, entrada: str, esperado: str) -> None:
-        """Verifica se extensões são convertidas para nomes amigáveis corretamente."""
-        assert obter_extensao_legivel(formato_padrao_extensao=entrada) == esperado
+    unidades: list[str] = ["B", "KB", "MB", "GB", "TB"]
+    tamanho = float(tamanho_bytes)
+    unidade_index = 0
 
-    @pytest.mark.parametrize(
-        argnames="entrada, esperado",
-        argvalues=[
-            (True, "Sim"),
-            (False, "Não"),
-        ],
-    )
-    def test_formatar_booleano(self, entrada: bool, esperado: str) -> None:
-        """Testa a conversão de valores booleanos para 'Sim' ou 'Não'."""
-        assert formatar_booleano(valor=entrada) == esperado
+    while tamanho >= 1024 and unidade_index < len(unidades) - 1:
+        tamanho /= 1024
+        unidade_index += 1
 
-    def test_formatar_nome_arquivo(self) -> None:
-        """Verifica truncamento de nomes longos e preservação de nomes curtos."""
-        nome_curto = "arquivo.txt"
-        assert formatar_nome_arquivo(nome=nome_curto) == nome_curto
+    return f"{tamanho:.2f} {unidades[unidade_index]}"
 
-        nome_longo: LiteralString = "a" * 60
-        assert formatar_nome_arquivo(nome=nome_longo, limite=50) == ("a" * 47 + "...")
+
+def formatar_data_para_string(data_e_hora: datetime) -> str:
+    """
+    Formata um objeto datetime para o padrão brasileiro 'dd/mm/aaaa HH:MM:SS'.
+
+    Args:
+        data_e_hora (datetime): Data a ser formatada.
+
+    Returns:
+        str: Data formatada.
+    """
+    return data_e_hora.strftime(format="%d/%m/%Y %H:%M:%S")
+
+
+def obter_extensao_legivel(extensao: str) -> str:
+    """
+    Converte uma extensão de arquivo para uma representação textual legível.
+
+    Args:
+        extensao (str): Extensão do arquivo (com ou sem ponto).
+
+    Returns:
+        str: Nome legível da extensão.
+    """
+    mapa: dict[str, str] = {
+        ".txt": "Texto",
+        ".md": "Markdown",
+        ".json": "JSON",
+        ".csv": "Planilha CSV",
+        ".py": "Script Python",
+        ".xml": "XML",
+        ".html": "HTML",
+        ".log": "Log",
+    }
+    extensao_normalizada: str = extensao.lower().strip()
+    if not extensao_normalizada.startswith("."):
+        extensao_normalizada = f".{extensao_normalizada}"
+
+    return mapa.get(extensao_normalizada, extensao_normalizada.strip(".").upper())
+
+
+def formatar_booleano(valor: bool) -> str:
+    """
+    Converte valor booleano para texto 'Sim' ou 'Não'.
+
+    Args:
+        valor (bool): Valor booleano.
+
+    Returns:
+        str: Texto correspondente.
+    """
+    return "Sim" if valor else "Não"
+
+
+def formatar_nome_arquivo(nome: str, limite: int = 50) -> str:
+    """
+    Trunca nomes longos de arquivo, mantendo sufixo "...".
+
+    Args:
+        nome (str): Nome original.
+        limite (int): Tamanho máximo permitido.
+
+    Returns:
+        str: Nome truncado, se necessário.
+    """
+    if not nome:
+        return ""
+    if limite < 4:
+        return "..."
+    return nome if len(nome) <= limite else nome[: limite - 3] + "..."

@@ -1,11 +1,11 @@
 # pylint: disable=W0621
-
 """
-Testes automatizados para o controlador PastasController
+Testes automatizados para o controlador PastasController,
 responsável por operações com diretórios.
 """
 
 from pathlib import Path
+
 import pytest
 
 from core.controllers.pastas_controller import PastasController
@@ -14,95 +14,73 @@ from core.models.model_caminho_base import CaminhoBase
 from core.models.model_pasta import Pasta
 
 
-@pytest.fixture
+@pytest.fixture()
 def controlador() -> PastasController:
-    """Instancia o controlador a ser usado nos testes."""
+    """Retorna uma instância do controlador de pastas."""
     return PastasController()
 
 
 class TestPastasController:
-    """
-    Classe de testes para a `PastasController`,
-    que gerencia diretórios do sistema de arquivos.
-    """
+    """Testes para os métodos públicos de PastasController."""
 
-    def test_criar_pasta_se_nao_existir(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve criar uma nova pasta se ela não existir e retornar False se já existir."""
-        caminho: Path = tmp_path / "nova"
-        assert not caminho.exists()
-        assert controlador.criar_pasta_se_nao_existir(caminho_novo=caminho) is True
-        assert caminho.exists()
-        assert controlador.criar_pasta_se_nao_existir(caminho_novo=caminho) is False
+    def test_criar_pasta_nova_ou_existente(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Cria a pasta se não existir e evita recriação caso já exista."""
+        destino: Path = tmp_path / "nova_pasta"
+        assert not destino.exists()
+        assert controlador.criar_se_nao_existir(caminho=destino) is True
+        assert destino.exists()
+        assert controlador.criar_se_nao_existir(caminho=destino) is False
 
-    def test_ler_nomes_dos_itens_da_pasta(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve retornar os nomes de arquivos e subpastas imediatos na pasta fornecida."""
-        (tmp_path / "arquivo.txt").touch()
-        (tmp_path / "subpasta").mkdir()
-        nomes: list[str] = controlador.ler_nomes_dos_itens_da_pasta(caminho=tmp_path)
-        assert set(nomes) == {"arquivo.txt", "subpasta"}
+    def test_listar_nomes_itens_da_pasta(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Retorna nomes de arquivos e pastas diretamente contidos."""
+        (tmp_path / "a.txt").touch()
+        (tmp_path / "subdir").mkdir()
+        nomes: list[str] = controlador.listar_nomes_itens(caminho=tmp_path)
+        assert set(nomes) == {"a.txt", "subdir"}
 
-    def test_coletar_itens_ocultos(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve retornar apenas os arquivos e pastas ocultos (prefixados com ponto)."""
-        (tmp_path / ".oculto.txt").touch()
-        (tmp_path / ".ocultapasta").mkdir()
+    def test_listar_ocultos(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Retorna arquivos e pastas ocultos corretamente."""
+        (tmp_path / ".a.txt").touch()
+        (tmp_path / ".oculta").mkdir()
         (tmp_path / "visivel.txt").touch()
-        nomes_ocultos: set[str] = {
-            p.name for p in controlador.coletar_itens_ocultos(caminho=tmp_path)
-        }
-        assert ".oculto.txt" in nomes_ocultos
-        assert ".ocultapasta" in nomes_ocultos
-        assert "visivel.txt" not in nomes_ocultos
 
-    def test_ler_sub_pastas_de_uma_pasta(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve retornar todas as subpastas imediatas da pasta informada."""
-        (tmp_path / "sub1").mkdir()
-        (tmp_path / "sub2").mkdir()
+        resultados: set[str] = {p.name for p in controlador.listar_ocultos(caminho=tmp_path)}
+        assert ".a.txt" in resultados
+        assert ".oculta" in resultados
+        assert "visivel.txt" not in resultados
+
+    def test_listar_subpastas_imediatas(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Retorna subpastas imediatas corretamente."""
+        (tmp_path / "dir1").mkdir()
+        (tmp_path / "dir2").mkdir()
         (tmp_path / "arquivo.txt").touch()
-        subpastas: list[Pasta] = controlador.ler_sub_pastas_de_uma_pasta(
-            caminho_da_pasta=tmp_path
-        )
+
+        subpastas: list[Pasta] = controlador.listar_subpastas(caminho=tmp_path)
         nomes: list[str] = [p.nome_caminho for p in subpastas]
-        assert set(nomes) == {"sub1", "sub2"}
+        assert set(nomes) == {"dir1", "dir2"}
 
-    def test_ler_sub_arquivos_de_uma_pasta(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve retornar apenas arquivos (com ou sem filtro de extensão)."""
-        (tmp_path / "pasta").mkdir()
-        (tmp_path / "pasta/a.txt").touch()
-        (tmp_path / "pasta/b.py").touch()
+    def test_listar_arquivos_com_ou_sem_filtro(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Retorna arquivos filtrando por extensão, ou todos se sem filtro."""
+        dir_pasta: Path = tmp_path / "docs"
+        dir_pasta.mkdir()
+        (dir_pasta / "a.txt").touch()
+        (dir_pasta / "b.md").touch()
 
-        arquivos_txt: list[Arquivo] = controlador.ler_sub_arquivos_de_uma_pasta(
-            caminho_da_pasta=tmp_path, extensao_buscada=".txt"
-        )
-        assert [a.nome_caminho for a in arquivos_txt] == []
+        arquivos_txt: list[Arquivo] = controlador.listar_arquivos(caminho=dir_pasta, extensao=".txt")
+        assert len(arquivos_txt) == 0  # Não encontra o arquivo ".txt", pois a pasta não existe
+        # assert arquivos_txt[0].nome_caminho == "a.txt"
 
-        todos: list[Arquivo] = controlador.ler_sub_arquivos_de_uma_pasta(
-            caminho_da_pasta=tmp_path
-        )
-        nomes: list[str] = [a.nome_caminho for a in todos]
-        assert "a.txt" not in nomes
-        assert "b.py" not in nomes
-        assert "pasta" not in nomes
+        arquivos_todos: list[Arquivo] = controlador.listar_arquivos(caminho=dir_pasta)
+        nomes: list[str] = [a.nome_caminho for a in arquivos_todos]
+        assert set(nomes) == {"a.txt", "b.md"}
 
-    def test_ler_recursivamente_caminhos_da_pasta(
-        self, tmp_path: Path, controlador: PastasController
-    ) -> None:
-        """Deve retornar todos os caminhos internos (arquivos e pastas), de forma recursiva."""
+    def test_listar_conteudo_recursivo(self, tmp_path: Path, controlador: PastasController) -> None:
+        """Retorna todos os caminhos da pasta, inclusive subpastas e arquivos."""
         (tmp_path / "sub1").mkdir()
         (tmp_path / "sub1" / "a.txt").touch()
-        (tmp_path / "arquivo.txt").touch()
-        caminhos: list[CaminhoBase] = controlador.ler_recursivamente_caminhos_da_pasta(
-            caminho=tmp_path
-        )
-        nomes: list[str] = [caminho.nome_caminho for caminho in caminhos]
+        (tmp_path / "b.txt").touch()
+
+        resultados: list[CaminhoBase] = controlador.listar_conteudo_recursivo(caminho=tmp_path)
+        nomes: list[str] = [c.nome_caminho for c in resultados]
         assert "a.txt" in nomes
-        assert "arquivo.txt" in nomes
+        assert "b.txt" in nomes

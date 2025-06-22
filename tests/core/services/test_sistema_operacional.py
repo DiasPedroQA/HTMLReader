@@ -9,8 +9,9 @@ Este conjunto de testes cobre:
 Os testes são parametrizados com exemplos comuns de sistemas operacionais conhecidos.
 """
 
-from pathlib import Path
 import re
+from pathlib import Path
+
 import pytest
 
 from core.utils.sistema_operacional import SistemaOperacional
@@ -31,23 +32,15 @@ class TestSistemaOperacional:
             ("Darwin", SistemaOperacional.MACOS),
         ],
     )
-    def test_detectar_sistema_operacional_valido(
-        self, entrada: str, esperado: SistemaOperacional
-    ) -> None:
+    def test_detectar_sistema_operacional_valido(self, entrada: str, esperado: SistemaOperacional) -> None:
         """Verifica se a detecção do sistema retorna a enumeração esperada."""
-        resultado: SistemaOperacional = SistemaOperacional.detectar(
-            sistema_simulado=entrada
-        )
+        resultado: SistemaOperacional = SistemaOperacional.detectar(sistema_simulado=entrada)
         assert resultado == esperado
 
-    @pytest.mark.parametrize(
-        argnames="sistema_invalido", argvalues=["beos", "atari", "plan9"]
-    )
+    @pytest.mark.parametrize(argnames="sistema_invalido", argvalues=["beos", "atari", "plan9"])
     def test_detectar_sistema_operacional_invalido(self, sistema_invalido: str) -> None:
         """Verifica se uma exceção é lançada para sistemas não suportados."""
-        with pytest.raises(
-            expected_exception=ValueError, match="Sistema não suportado"
-        ):
+        with pytest.raises(expected_exception=ValueError, match="Sistema não suportado"):
             SistemaOperacional.detectar(sistema_simulado=sistema_invalido)
 
     @pytest.mark.parametrize(
@@ -58,9 +51,7 @@ class TestSistemaOperacional:
             ("macos", Path("/Users/")),
         ],
     )
-    def test_obter_raiz_usuario_com_sistema_simulado(
-        self, sistema: str, esperado_prefixo: Path
-    ) -> None:
+    def test_obter_raiz_usuario_com_sistema_simulado(self, sistema: str, esperado_prefixo: Path) -> None:
         """Verifica se o caminho raiz do usuário simulado começa com o prefixo esperado."""
         caminho: Path = SistemaOperacional.obter_raiz_usuario(sistema_desejado=sistema)
         assert isinstance(caminho, Path)
@@ -72,8 +63,6 @@ class TestSistemaOperacional:
 
         with pytest.raises(
             expected_exception=ValueError,
-            match=re.escape(
-                f"Sistema não suportado: {sistema_invalido} (processado: {sistema_invalido})"
-            ),
+            match=re.escape(f"Sistema não suportado: {sistema_invalido} (processado: {sistema_invalido})"),
         ):
             SistemaOperacional.obter_raiz_usuario(sistema_desejado=sistema_invalido)

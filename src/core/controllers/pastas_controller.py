@@ -1,15 +1,8 @@
 """
-Módulo de controle para operações com diretórios no sistema de arquivos.
+Controlador de operações com diretórios no sistema de arquivos.
 
-Este módulo define a classe `PastasController`, responsável por mediar a criação
-e leitura de pastas, utilizando a model `Pasta` como base para operações de leitura
-e escrita seguras.
-
-Funcionalidades disponíveis:
-- Criação condicional de diretórios
-- Listagem de conteúdo imediato
-- Identificação de arquivos e pastas ocultos
-- Listagem recursiva completa
+A classe `PastasController` fornece métodos para criação segura de pastas,
+leitura de conteúdo imediato ou recursivo e identificação de arquivos/pastas ocultos.
 """
 
 from pathlib import Path
@@ -21,112 +14,96 @@ from core.models.model_pasta import Pasta
 
 class PastasController:
     """
-    Controlador de operações de criação e leitura de pastas no sistema de arquivos.
-
-    Utiliza a model `Pasta` para aplicar regras e filtros.
+    Controlador para leitura e criação de diretórios usando a model Pasta.
     """
 
-    def ler_nomes_dos_itens_da_pasta(self, caminho: str | Path) -> list[str]:
+    def listar_nomes_itens(self, caminho: str | Path) -> list[str]:
         """
-        Retorna os nomes dos arquivos e subpastas contidos diretamente na pasta.
+        Retorna os nomes de todos os itens diretamente contidos na pasta.
 
         Args:
             caminho: Caminho da pasta a ser lida.
 
         Returns:
-            Lista de nomes de arquivos e subpastas.
+            Lista com os nomes dos arquivos e subpastas.
         """
-        objeto_pasta = Pasta(caminho=caminho)
-        return [p.nome_caminho for p in objeto_pasta.conteudo_listado]
+        pasta = Pasta(caminho=caminho)
+        return [item.nome_caminho for item in pasta.itens_diretos]
 
-    def coletar_itens_ocultos(self, caminho: str | Path) -> list[Path]:
+    def listar_ocultos(self, caminho: str | Path) -> list[Path]:
         """
-        Retorna os caminhos de arquivos e pastas ocultos (iniciados com ponto).
+        Retorna os caminhos de itens ocultos diretamente contidos na pasta.
 
         Args:
             caminho: Caminho da pasta a ser inspecionada.
 
         Returns:
-            Lista de caminhos de itens ocultos.
+            Lista de caminhos de arquivos ou pastas ocultos.
         """
-        objeto_pasta = Pasta(caminho=caminho)
-        return objeto_pasta.coletar_itens_ocultos()
+        pasta = Pasta(caminho=caminho)
+        return pasta.listar_ocultos()
 
-    def ler_recursivamente_caminhos_da_pasta(
-        self, caminho: str | Path
-    ) -> list[CaminhoBase]:
+    def listar_conteudo_recursivo(self, caminho: str | Path) -> list[CaminhoBase]:
         """
-        Lê recursivamente todos os arquivos e subpastas dentro da pasta informada.
+        Retorna todos os arquivos e subpastas contidos, de forma recursiva.
 
         Args:
-            caminho: Caminho base da varredura.
+            caminho: Caminho base da leitura.
 
         Returns:
-            Lista de objetos representando caminhos internos.
+            Lista de objetos CaminhoBase representando cada item encontrado.
         """
-        objeto_pasta = Pasta(caminho=caminho)
-        return (
-            objeto_pasta.coletar_itens_recursivamente()
-            if objeto_pasta.caminho_existe
-            else []
-        )
+        pasta = Pasta(caminho=caminho)
+        return pasta.listar_conteudo_recursivo() if pasta.caminho_existe else []
 
-    def criar_pasta_se_nao_existir(self, caminho_novo: Path) -> bool:
+    def criar_se_nao_existir(self, caminho: Path) -> bool:
         """
-        Cria a pasta no caminho indicado, se ela ainda não existir.
+        Cria o diretório no caminho informado, caso ainda não exista.
 
         Args:
-            caminho_novo: Caminho do novo diretório.
+            caminho: Caminho da nova pasta.
 
         Returns:
             True se a pasta foi criada, False se já existia.
         """
-        objeto_pasta = Pasta(caminho=caminho_novo)
-        if not objeto_pasta.caminho_existe:
-            objeto_pasta.caminho_absoluto.mkdir(parents=True, exist_ok=True)
+        pasta = Pasta(caminho=caminho)
+        if not pasta.caminho_existe:
+            pasta.caminho_absoluto.mkdir(parents=True, exist_ok=True)
             return True
         return False
 
-    def ler_sub_pastas_de_uma_pasta(self, caminho_da_pasta: Path) -> list[Pasta]:
+    def listar_subpastas(self, caminho: Path) -> list[Pasta]:
         """
-        Retorna todas as subpastas imediatas de uma pasta fornecida.
+        Retorna as subpastas diretamente contidas na pasta informada.
 
         Args:
-            caminho_da_pasta: Caminho da pasta a ser inspecionada.
+            caminho: Caminho da pasta principal.
 
         Returns:
-            Lista de objetos `Pasta` representando subpastas.
+            Lista de objetos Pasta representando as subpastas imediatas.
         """
-        objeto_pasta = Pasta(caminho=caminho_da_pasta)
-        return [
-            Pasta(caminho=pasta.caminho_absoluto)
-            for pasta in objeto_pasta.conteudo_listado
-            if pasta.retornar_o_tipo.value == "Pasta"
-        ]
+        pasta = Pasta(caminho=caminho)
+        return [Pasta(caminho=item.caminho_absoluto) for item in pasta.itens_diretos if item.retornar_o_tipo == "Pasta"]
 
-    def ler_sub_arquivos_de_uma_pasta(
-        self, caminho_da_pasta: Path, extensao_buscada: str | None = None
-    ) -> list[Arquivo]:
+    def listar_arquivos(self, caminho: Path, extensao: str | None = None) -> list[Arquivo]:
         """
-        Retorna arquivos imediatos da pasta fornecida, com filtro opcional por extensão.
+        Retorna os arquivos diretamente contidos, com opção de filtrar por extensão.
 
         Args:
-            caminho_da_pasta: Caminho da pasta a ser lida.
-            extensao_buscada: Extensão para filtrar os arquivos, ex: ".txt"
+            caminho: Caminho da pasta a ser inspecionada.
+            extensao: Extensão dos arquivos desejados (ex: '.txt').
 
         Returns:
-            Lista de objetos `Arquivo` representando arquivos encontrados.
+            Lista de objetos Arquivo encontrados.
         """
-        objeto_pasta = Pasta(caminho=caminho_da_pasta)
-        arquivos: list[Arquivo] = [
-            Arquivo(caminho=arquivo.caminho_absoluto)
-            for arquivo in objeto_pasta.conteudo_listado
-            if arquivo.retornar_o_tipo.value == "Arquivo"
+        pasta_atual = Pasta(caminho=caminho)
+        lista_arquivos_pasta_atual: list[Arquivo] = [
+            Arquivo(caminho=item.caminho_absoluto)
+            for item in pasta_atual.itens_diretos
+            if item.retornar_o_tipo == "Arquivo"
         ]
-        if extensao_buscada:
-            return [
-                arquivo
-                for arquivo in arquivos
-                if arquivo.extensao_legivel == extensao_buscada
-            ]
-        return arquivos
+        if len(lista_arquivos_pasta_atual) == 0:
+            print(f"Nenhum arquivo encontrado na pasta {pasta_atual.caminho_absoluto}")
+        if extensao:
+            return [arquivo for arquivo in lista_arquivos_pasta_atual if arquivo.extensao_legivel == extensao]
+        return lista_arquivos_pasta_atual

@@ -5,6 +5,7 @@ Contém definições reutilizáveis de objetos comuns para testes.
 """
 
 from pathlib import Path
+
 import pytest
 
 from src.core.controllers.pastas_controller import PastasController

@@ -6,6 +6,7 @@ Inclui as rotas disponíveis e configurações básicas da aplicação.
 
 import uvicorn
 from fastapi import FastAPI
+
 # from interfaces.api.routes import infosistema_routes
 
 app = FastAPI(

@@ -37,9 +37,7 @@ class SidebarWidget(tk.Frame):
         self._botao_ativo: str | None = None
 
         # Título do menu
-        label = tk.Label(
-            master=self, text="Menu / Ações", bg="lightblue", font=("Arial", 12, "bold")
-        )
+        label = tk.Label(master=self, text="Menu / Ações", bg="lightblue", font=("Arial", 12, "bold"))
         label.pack(pady=10)
 
         # Container interno para os botões

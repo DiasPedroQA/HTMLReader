@@ -1,12 +1,30 @@
 """
-Funções auxiliares para formatação de dados de arquivos e pastas.
+Funções utilitárias para formatação de dados relacionados a arquivos e pastas.
+
+Inclui:
+- Conversão de tamanhos em bytes para formatos legíveis
+- Formatação de datas
+- Interpretação de extensões
+- Representação textual de valores booleanos
+- Truncamento seguro de nomes de arquivos
 """
 
 from datetime import datetime
 
 
 def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
-    """Converte um valor em bytes para um formato legível."""
+    """
+    Converte bytes para uma representação legível (B, KB, MB, etc.).
+
+    Args:
+        tamanho_bytes (int): Valor em bytes.
+
+    Returns:
+        str: Representação formatada como string.
+    """
+    if tamanho_bytes <= 0:
+        return "0.00 B"
+
     unidades: list[str] = ["B", "KB", "MB", "GB", "TB"]
     tamanho = float(tamanho_bytes)
     unidade_index = 0
@@ -19,13 +37,29 @@ def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
 
 
 def formatar_data_para_string(data_e_hora: datetime) -> str:
-    """Formata datetime para 'dd/mm/aaaa HH:MM:SS'."""
+    """
+    Formata um objeto datetime para o padrão brasileiro 'dd/mm/aaaa HH:MM:SS'.
+
+    Args:
+        data_e_hora (datetime): Data a ser formatada.
+
+    Returns:
+        str: Data formatada.
+    """
     return data_e_hora.strftime(format="%d/%m/%Y %H:%M:%S")
 
 
-def obter_extensao_legivel(formato_padrao_extensao: str) -> str:
-    """Converte extensão técnica para nome amigável."""
-    mapa_extensoes_aceitaveis: dict[str, str] = {
+def obter_extensao_legivel(extensao: str) -> str:
+    """
+    Converte uma extensão de arquivo para uma representação textual legível.
+
+    Args:
+        extensao (str): Extensão do arquivo (com ou sem ponto).
+
+    Returns:
+        str: Nome legível da extensão.
+    """
+    mapa: dict[str, str] = {
         ".txt": "Texto",
         ".md": "Markdown",
         ".json": "JSON",
@@ -35,17 +69,39 @@ def obter_extensao_legivel(formato_padrao_extensao: str) -> str:
         ".html": "HTML",
         ".log": "Log",
     }
-    return mapa_extensoes_aceitaveis.get(
-        formato_padrao_extensao.lower(),
-        formato_padrao_extensao.strip(".").upper()
-    )
+    extensao_normalizada: str = extensao.lower().strip()
+    if not extensao_normalizada.startswith("."):
+        extensao_normalizada: str = f".{extensao_normalizada}"
+
+    return mapa.get(extensao_normalizada, extensao_normalizada.strip(".").upper())
 
 
 def formatar_booleano(valor: bool) -> str:
-    """Converte booleano para 'Sim' ou 'Não'."""
+    """
+    Converte valor booleano para texto 'Sim' ou 'Não'.
+
+    Args:
+        valor (bool): Valor booleano.
+
+    Returns:
+        str: Texto correspondente.
+    """
     return "Sim" if valor else "Não"
 
 
 def formatar_nome_arquivo(nome: str, limite: int = 50) -> str:
-    """Trunca nomes longos de arquivo."""
+    """
+    Trunca nomes longos de arquivo, mantendo sufixo "...".
+
+    Args:
+        nome (str): Nome original.
+        limite (int): Tamanho máximo permitido.
+
+    Returns:
+        str: Nome truncado, se necessário.
+    """
+    if not nome:
+        return ""
+    if limite < 4:
+        return "..."
     return nome if len(nome) <= limite else nome[: limite - 3] + "..."
