@@ -11,13 +11,14 @@ Este módulo define a classe `Arquivo`, encapsulando operações comuns sobre ar
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 from core.utils.formatadores import (
-    formatar_arquivo_tamanho_legivel,
     formatar_arquivo_data_para_string,
-    formatar_arquivo_valor_booleano,
     formatar_arquivo_obter_extensao_legivel,
+    formatar_arquivo_tamanho_legivel,
+    formatar_arquivo_valor_booleano,
 )
 
 
@@ -59,9 +60,7 @@ class Arquivo:
     @property
     def extensao_legivel(self) -> str:
         """Retorna a extensão formatada (com ponto, se aplicável)."""
-        return formatar_arquivo_obter_extensao_legivel(
-            extensao_arquivo=self.caminho.suffix
-        )
+        return formatar_arquivo_obter_extensao_legivel(extensao_arquivo=self.caminho.suffix)
 
     @property
     def diretorio_pai(self) -> Path:
@@ -89,11 +88,7 @@ class Arquivo:
     def criado_em(self) -> datetime | None:
         """Data de criação do arquivo."""
         try:
-            return (
-                datetime.fromtimestamp(timestamp=self.caminho.stat().st_ctime)
-                if self.existe
-                else None
-            )
+            return datetime.fromtimestamp(timestamp=self.caminho.stat().st_ctime) if self.existe else None
         except OSError:
             return None
 
@@ -102,19 +97,13 @@ class Arquivo:
         """Data de criação formatada como string."""
         if not self.criado_em:
             return None
-        return formatar_arquivo_data_para_string(
-            float_data_e_hora=self.criado_em.timestamp()
-        )
+        return formatar_arquivo_data_para_string(float_data_e_hora=self.criado_em.timestamp())
 
     @property
     def modificado_em(self) -> datetime | None:
         """Data de modificação do arquivo."""
         try:
-            return (
-                datetime.fromtimestamp(timestamp=self.caminho.stat().st_mtime)
-                if self.existe
-                else None
-            )
+            return datetime.fromtimestamp(timestamp=self.caminho.stat().st_mtime) if self.existe else None
         except OSError:
             return None
 
@@ -123,9 +112,7 @@ class Arquivo:
         """Data de modificação formatada como string."""
         if not self.modificado_em:
             return None
-        return formatar_arquivo_data_para_string(
-            float_data_e_hora=self.modificado_em.timestamp()
-        )
+        return formatar_arquivo_data_para_string(float_data_e_hora=self.modificado_em.timestamp())
 
     @property
     def eh_oculto(self) -> bool:

@@ -133,26 +133,6 @@ class TestPasta:
         assert len(resultados_filtro) == 1
         assert resultados_filtro[0].nome == "b.txt"
 
-    def test_calcular_tamanho_total_com_erro(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """
-        Testa o método `calcular_tamanho_total` simulando erro de acesso a arquivos.
-
-        Usa monkeypatch para simular `OSError` na obtenção do tamanho,
-        confirmando que o método ignora esses erros e retorna o total correto.
-        """
-        (tmp_path / "arquivo.txt").write_text("abc")
-        pasta = Pasta(caminho=tmp_path)
-
-        def fake_stat() -> NoReturn:
-            raise OSError("Simulado")
-
-        monkeypatch.setattr(Path, "stat", fake_stat)
-
-        total: int = pasta.calcular_tamanho_total()
-        assert total == 0
-
     def test_contar_extensoes_varias(self, tmp_path: Path) -> None:
         """
         Testa a contagem de extensões considerando arquivos variados.
@@ -172,3 +152,23 @@ class TestPasta:
         assert contagem.get(".txt") == 1
         assert ".oculto" not in contagem
         assert "" not in contagem
+
+    def test_calcular_tamanho_total_com_erro(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Testa o método `calcular_tamanho_total` simulando erro de acesso a arquivos.
+
+        Usa monkeypatch para simular `OSError` na obtenção do tamanho,
+        confirmando que o método ignora esses erros e retorna o total correto.
+        """
+        (tmp_path / "arquivo.txt").write_text("abc")
+        pasta = Pasta(caminho=tmp_path)
+
+        def fake_stat(follow_symlinks: bool = True) -> NoReturn:
+            raise OSError("Simulado")
+
+        monkeypatch.setattr(Path, "stat", fake_stat)
+
+        total: int = pasta.calcular_tamanho_total()
+        assert total == 0  # deve ignorar erro e continuar

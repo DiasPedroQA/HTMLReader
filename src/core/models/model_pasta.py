@@ -8,10 +8,10 @@ Define a classe `Pasta`, que representa diretórios com funcionalidades como:
 """
 
 import os
-from pathlib import Path
-from dataclasses import dataclass
 from collections import Counter
-from collections.abc import Iterator, Callable
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from pathlib import Path
 
 from core.models.model_arquivo import Arquivo
 

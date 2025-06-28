@@ -83,9 +83,7 @@ class TestArquivo:
         assert arq.criado_em is None
         assert arq.modificado_em is None
 
-    def test_criar_falha_por_oserror(
-        self, tmp_path: Path, monkeypatch: MonkeyPatch
-    ) -> None:
+    def test_criar_falha_por_oserror(self, tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
         """Testa falha de criação de arquivo simulando OSError."""
 
         caminho: Path = tmp_path / "erro.txt"

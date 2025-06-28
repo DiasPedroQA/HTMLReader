@@ -97,10 +97,10 @@ class TestFormatadores:
         assert formatar_arquivo_valor_booleano(valor=False) == "Não"
 
         # Truthy/falsy values
-        # assert formatar_arquivo_valor_booleano(valor=bool(1)) == "Sim"
-        # assert formatar_arquivo_valor_booleano(valor=bool(0)) == "Não"
-        # assert formatar_arquivo_valor_booleano(valor=bool([])) == "Não"
-        # assert formatar_arquivo_valor_booleano(valor=bool([1])) == "Sim"
+        assert formatar_arquivo_valor_booleano(valor=bool(1)) == "Sim"
+        assert formatar_arquivo_valor_booleano(valor=bool(0)) == "Não"
+        assert formatar_arquivo_valor_booleano(valor=bool([])) == "Não"
+        assert formatar_arquivo_valor_booleano(valor=bool([1])) == "Sim"
 
     @pytest.mark.parametrize(
         argnames="tamanho_arquivo, esperado",

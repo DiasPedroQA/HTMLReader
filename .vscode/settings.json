@@ -93,7 +93,7 @@
         "**/Thumbs.db": true
     },
     "makefile.makefilePath": "Makefile",
-    "makefile.buildLog": "exemplos",
+    "makefile.buildLog": ".logs_makefile",
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/src"
     },

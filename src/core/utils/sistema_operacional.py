@@ -13,10 +13,10 @@ Classes:
     - SistemaOperacional: Classe utilitária com métodos estáticos de detecção.
 """
 
-import platform
 import os
-from pathlib import Path
+import platform
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
