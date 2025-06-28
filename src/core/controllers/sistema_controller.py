@@ -1,71 +1,46 @@
-"""
-Controlador para informações do sistema operacional e estrutura de diretórios do usuário.
+# # controlador_sistema.py
+# # pylint: disable=W0212
 
-Responsável por:
-- Detecção do sistema operacional
-- Acesso ao diretório raiz do usuário
-- Coleta de arquivos e pastas do usuário logado
+# """
+# Controlador para informações do sistema operacional e estrutura de diretórios do usuário.
+# """
 
-Fornece estruturas padronizadas para consumo por outros componentes.
-"""
+# from pathlib import Path
 
-from functools import cached_property
-from pathlib import Path
+# # from core.models.model_arquivo import Arquivo
+# # from core.models.model_caminho_base import CaminhoBase
+# # from core.models.model_pasta import Pasta
+# from core.utils.sistema_operacional import SistemaOperacional
 
-from core.models.model_arquivo import Arquivo
-from core.models.model_caminho_base import CaminhoBase
-from core.models.model_pasta import Pasta
-from core.utils.sistema_operacional import SistemaOperacional
+# # from core.controllers.pastas_controller import PastasController
 
 
-class ControladorSistema:
-    """
-    Controlador central para informações do sistema operacional
-    e caminhos do sistema de arquivos do usuário.
-    """
+# class ControladorSistema:
+#     """
+#     Controlador central para informações do sistema operacional.
+#     """
 
-    def __init__(self, sistema: str | None = None) -> None:
-        """
-        Inicializa o controlador, detectando ou sobrescrevendo o sistema operacional.
+#     def info_sistema(self) -> dict[str, str | Path]:
+#         """
+#         Retorna informações básicas do sistema e diretório do usuário.
 
-        Args:
-            sistema: Nome opcional para simulação do sistema operacional.
-        """
-        self._sistema: SistemaOperacional = SistemaOperacional.detectar(sistema_simulado=sistema)
+#         Returns:
+#             dict[str, str | Path]: Contendo sistema operacional e caminho raiz.
+#         """
+#         sistema_atual: SistemaOperacional = SistemaOperacional.detectar_sistema()
+#         return {
+#             "sistema_operacional": sistema_atual.value,
+#             "diretorio_usuario": sistema_atual.obter_raiz_usuario_logado,
+#         }
 
-    @cached_property
-    def raiz_usuario(self) -> Path:
-        """Retorna o caminho da pasta raiz do usuário."""
-        return SistemaOperacional.obter_raiz_usuario(str(self._sistema))
 
-    @property
-    def info_sistema(self) -> dict[str, SistemaOperacional | Path]:
-        """
-        Retorna informações básicas do sistema e diretório do usuário.
+# # # Exemplo de uso
+# # if __name__ == "__main__":
+# #     controlador = ControladorSistema()
+# #     info: dict[str, str | Path] = controlador.info_sistema()
 
-        Returns:
-            dict: Contendo sistema operacional e caminho raiz.
-        """
-        return {
-            "sistema": self._sistema,
-            "user_root": self.raiz_usuario,
-        }
-
-    def listar_itens_usuario(self) -> list[CaminhoBase]:
-        """
-        Lista arquivos e pastas imediatos do diretório do usuário logado.
-
-        Returns:
-            list[CaminhoBase]: Instâncias de `Arquivo` ou `Pasta`.
-        """
-        pasta_usuario = Pasta(caminho=self.raiz_usuario)
-        itens: list[CaminhoBase] = []
-
-        for item in pasta_usuario.itens_diretos:
-            match item.retornar_o_tipo:
-                case "Arquivo":
-                    itens.append(Arquivo(caminho=item.caminho_absoluto))
-                case "Pasta":
-                    itens.append(Pasta(caminho=item.caminho_absoluto))
-
-        return itens
+# #     print("\nInformações do Sistema:")
+# #     print(f"SO: {info['sistema_operacional']}")
+# #     print(f"Diretório usuário: {info['diretorio_usuario']}")
+# #     diretorio_usuario_path = Path(info['diretorio_usuario'])
+# #     print(f"Existe? {diretorio_usuario_path.exists()}")

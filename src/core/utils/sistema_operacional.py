@@ -1,122 +1,89 @@
 """
-Utilitários para obtenção de informações do sistema operacional.
+Módulo utilitário para detecção e coleta de informações do sistema operacional.
 
-Fornece classes e métodos para:
-- Detecção do sistema operacional
-- Obtenção de caminhos padrão do usuário
-- Validação e manipulação básica de arquivos e diretórios
-
-O módulo foi otimizado para Python 3.12+, utilizando:
-- Type hints específicos da versão
-- Pattern matching (match/case)
-- Enumerações modernas
-- Operações de sistema otimizadas
+Este módulo fornece uma interface unificada para:
+- Identificar o nome do sistema operacional atual
+- Obter o caminho do diretório pessoal do usuário logado
+- Verificar se o usuário atual possui privilégios de root (Unix-like)
+- Confirmar a existência do caminho do usuário
+- Tratar exceções e manter compatibilidade entre sistemas
 
 Classes:
-    SistemaOperacional: Enumeração que representa sistemas operacionais suportados
-        com métodos para detecção e operações relacionadas.
+    - DadosSistemaOperacional: Contêiner de dados com informações do sistema.
+    - SistemaOperacional: Classe utilitária com métodos estáticos de detecção.
 """
 
-from enum import Enum
-from getpass import getuser
+import platform
+import os
 from pathlib import Path
-from platform import system
+from dataclasses import dataclass
 
 
-class SistemaOperacional(str, Enum):
-    """Enumeração dos sistemas operacionais suportados pelo módulo.
+@dataclass
+class DadosSistemaOperacional:
+    """
+    Estrutura de dados que representa informações básicas do sistema operacional.
 
     Atributos:
-        WINDOWS: Representa o sistema operacional Windows
-        LINUX: Representa sistemas baseados em Linux
-        MACOS: Representa o sistema operacional macOS
+        nome (str): Nome do sistema operacional (ex: 'linux', 'windows', 'darwin').
+        caminho_usuario (Path): Caminho do diretório pessoal do usuário.
+        usuario_root (bool): Indica se o usuário atual possui privilégios de root.
+        encontrado (bool): Indica se o caminho do usuário foi encontrado com sucesso.
     """
 
-    WINDOWS = "windows"
-    LINUX = "linux"
-    MACOS = "macos"
+    nome: str
+    caminho_usuario: Path
+    usuario_root: bool
+    encontrado: bool
 
-    @classmethod
-    def detectar(cls, sistema_simulado: str | None = None) -> "SistemaOperacional":
-        """Detecta o sistema operacional em execução.
 
-        Args:
-            sistema_simulado: Opcional. Permite simular um sistema para testes.
-                Se None, detecta o sistema real.
-
-        Returns:
-            SistemaOperacional: Enumeração correspondente ao sistema detectado.
-
-        Raises:
-            ValueError: Se o sistema detectado não for suportado.
-
-        Exemplos:
-            >>> SistemaOperacional.detectar()
-            <SistemaOperacional.LINUX: 'linux'>
-
-            >>> SistemaOperacional.detectar("Windows 11")
-            <SistemaOperacional.WINDOWS: 'windows'>
-        """
-        nome_bruto: str = (sistema_simulado or system()).casefold()
-        nome: str = nome_bruto.split(sep=".")[-1]
-
-        sistemas_permitidos: dict[str, "SistemaOperacional"] = {
-            "windows": cls.WINDOWS,
-            "win32": cls.WINDOWS,
-            "linux": cls.LINUX,
-            "darwin": cls.MACOS,
-            "mac": cls.MACOS,
-            "macos": cls.MACOS,
-        }
-
-        for key, value in sistemas_permitidos.items():
-            if key in nome:
-                return value
-
-        raise ValueError(f"Sistema não suportado: {nome_bruto} (processado: {nome})")
-
-    @classmethod
-    def obter_raiz_usuario(cls, sistema_desejado: str | None = None) -> Path:
-        """Obtém o caminho raiz do diretório do usuário para o sistema especificado.
-
-        Args:
-            sistema_desejado: Opcional. Nome do sistema para o qual obter o caminho.
-                Se None, usa o sistema atual.
-
-        Returns:
-            Path: Objeto Path apontando para o diretório home do usuário.
-
-        Raises:
-            ValueError: Se o sistema especificado não for suportado.
-
-        Exemplos:
-            >>> SistemaOperacional.obter_raiz_usuario()
-            PosixPath('/home/usuario')
-
-            >>> SistemaOperacional.obter_raiz_usuario("windows")
-            WindowsPath('C:/Users/usuario')
-        """
-        sistema: SistemaOperacional = cls.detectar(sistema_simulado=sistema_desejado)
-        nome_usuario: str = getuser()
-
-        match sistema:
-            case cls.WINDOWS:
-                return Path(f"C:/Users/{nome_usuario}")
-            case cls.LINUX:
-                return Path(f"/home/{nome_usuario}")
-            case cls.MACOS:
-                return Path(f"/Users/{nome_usuario}")
-            case _:
-                raise ValueError(f"Sem suporte para sistema: {sistema}")
+class SistemaOperacional:
+    """
+    Classe utilitária para operações relacionadas ao sistema operacional.
+    """
 
     @staticmethod
-    def _raise_unsupported_system(nome: str) -> None:
-        """Método interno para lançar exceção de sistema não suportado.
-
-        Args:
-            nome: Nome do sistema não suportado.
-
-        Raises:
-            ValueError: Sempre que chamado, com mensagem formatada.
+    def detectar_nome() -> str:
         """
-        raise ValueError(f"Sistema operacional não suportado ou desconhecido: {nome}")
+        Detecta o nome do sistema operacional atual de forma padronizada.
+
+        Retorna:
+            str: Nome em minúsculas do sistema operacional (e.g. 'linux', 'windows').
+        """
+        return platform.system().lower()
+
+    @staticmethod
+    def obter_dados_usuario() -> DadosSistemaOperacional:
+        """
+        Coleta os principais dados do ambiente do sistema operacional atual.
+
+        Retorna:
+            DadosSistemaOperacional: Objeto com dados padronizados e seguros sobre o SO.
+        """
+        nome_so: str = SistemaOperacional.detectar_nome()
+        caminho: Path | None = None
+        encontrado: bool = False
+        usuario_root: bool = os.geteuid() == 0 if hasattr(os, "geteuid") else False
+
+        try:
+            if nome_so == "linux":
+                caminho = Path.home()
+            elif nome_so == "windows":
+                caminho = Path(os.environ.get("USERPROFILE", "C:\\Users\\Default"))
+            elif nome_so == "darwin":
+                caminho = Path.home()
+            else:
+                caminho = Path("/desconhecido")
+
+            encontrado = caminho.exists()
+
+        except OSError:
+            caminho = Path("/erro")
+            encontrado = False
+
+        return DadosSistemaOperacional(
+            nome=nome_so,
+            caminho_usuario=caminho,
+            usuario_root=usuario_root,
+            encontrado=encontrado,
+        )

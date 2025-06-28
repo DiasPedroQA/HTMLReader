@@ -1,119 +1,99 @@
 """
-Testes unitários para o módulo de representação e manipulação de arquivos no sistema de arquivos.
+Testes unitários para o modelo `Arquivo`.
 
-Este conjunto de testes valida o comportamento da classe `Arquivo`, garantindo que
-suas propriedades e métodos funcionem corretamente. Os testes cobrem:
-
-- Manipulação de extensão e nomes de arquivos
-- Detecção de arquivos ocultos
+Este módulo cobre:
+- Verificação de existência e metadados
 - Leitura e escrita de conteúdo
-- Criação condicional de arquivos
-- Acesso a metadados como tamanho, data de criação e modificação
-
-Requer que a classe `Arquivo` esteja implementada corretamente e que o módulo
-`core.models.model_arquivo` esteja acessível.
+- Detecção de arquivos ocultos
+- Comportamento de caminhos inválidos
 """
 
-from collections.abc import Generator
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Any
+from typing import NoReturn
 
-import pytest
+from pytest import MonkeyPatch
 
 from core.models.model_arquivo import Arquivo
 
 
 class TestArquivo:
-    """
-    Testes unitários para a classe Arquivo, responsável por representar arquivos
-    no sistema de arquivos com métodos de leitura, escrita, verificação de metadados
-    e análise de propriedades como nome, extensão e visibilidade.
-    """
+    """Classe de testes para o modelo `Arquivo`."""
 
-    @pytest.fixture()
-    def arquivo_teste(self) -> Generator[Path, Any, None]:
-        """
-        Fixture que cria um arquivo temporário com conteúdo de teste.
+    def test_arquivo_valido(self, tmp_path: Path) -> None:
+        """Testa a criação, escrita e leitura de um arquivo válido."""
+        caminho: Path = tmp_path / "teste.txt"
+        arq = Arquivo(caminho=caminho)
+        conteudo = "exemplo de conteúdo"
 
-        Returns:
-            Path: Caminho do arquivo temporário criado.
-        """
-        with TemporaryDirectory() as tmpdir:
-            caminho: Path = Path(tmpdir) / "teste.txt"
-            caminho.write_text(data="conteúdo de teste", encoding="utf-8")
-            yield caminho
+        assert arq.criar(conteudo=conteudo) is True
+        assert arq.existe is True
+        assert arq.nome == "teste.txt"
+        assert arq.extensao == "txt"
+        assert arq.ler() == conteudo
+        assert arq.tamanho_bytes > 0
+        assert arq.diretorio_pai == tmp_path
+        assert arq.eh_oculto is False
 
-    def test_nome_sem_extensao(self, arquivo_teste: Path) -> None:
-        """Deve retornar corretamente o nome do arquivo sem a extensão."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert arquivo.nome_sem_extensao == "teste"
+    def test_arquivo_invalido(self, tmp_path: Path) -> None:
+        """Testa a leitura e propriedades de um arquivo inexistente."""
+        caminho: Path = tmp_path / "invalido.txt"
+        arq = Arquivo(caminho=caminho)
 
-    def test_extensao(self, arquivo_teste: Path) -> None:
-        """Deve retornar a extensão correta do arquivo."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert arquivo.extensao == ".txt"
+        assert arq.existe is False
+        assert arq.ler() is None
+        assert arq.tamanho_bytes == 0
+        assert arq.criado_em is None
+        assert arq.modificado_em is None
 
-    def test_extensao_legivel(self, arquivo_teste: Path) -> None:
-        """Deve retornar uma descrição legível da extensão do arquivo."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert arquivo.extensao_legivel == "Texto"
+    def test_arquivo_oculto(self, tmp_path: Path) -> None:
+        """Testa a detecção de um arquivo oculto (nome iniciado por ponto)."""
+        caminho: Path = tmp_path / ".segredo"
+        caminho.write_text("conteúdo sigiloso")
+        arq = Arquivo(caminho=caminho)
 
-    def test_tamanho_legivel(self, arquivo_teste: Path) -> None:
-        """Deve retornar o tamanho do arquivo em formato legível."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert isinstance(arquivo.tamanho_legivel, str)
+        assert arq.eh_oculto is True
 
-    def test_data_modificacao_legivel(self, arquivo_teste: Path) -> None:
-        """Deve retornar a data de modificação do arquivo em formato legível."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert isinstance(arquivo.data_modificacao_legivel, str)
+    def test_operadores_personalizados(self, tmp_path: Path) -> None:
+        """Testa operadores personalizados: /, str e repr."""
+        caminho: Path = tmp_path / "exemplo.txt"
+        caminho.write_text("abc")
+        arq = Arquivo(caminho=caminho)
 
-    def test_data_criacao_legivel(self, arquivo_teste: Path) -> None:
-        """Deve retornar a data de criação do arquivo em formato legível."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert isinstance(arquivo.data_criacao_legivel, str)
+        sub_arq: Arquivo = arq / "outro.txt"
+        assert isinstance(sub_arq, Arquivo)
+        assert str(arq) == str(caminho)
+        assert repr(arq).startswith("Arquivo(")
 
-    def test_eh_arquivo_oculto(self, arquivo_teste: Path) -> None:
-        """Deve identificar corretamente arquivos ocultos."""
-        oculto: Path = arquivo_teste.parent / ".oculto.txt"
-        oculto.write_text(data="arquivo oculto", encoding="utf-8")
-        arquivo = Arquivo(caminho=oculto)
-        assert arquivo.eh_arquivo_oculto is True
+    def test_ler_erro_codificacao(self, tmp_path: Path) -> None:
+        """Testa erro de leitura com conteúdo binário inválido."""
+        caminho: Path = tmp_path / "binario.txt"
+        caminho.write_bytes(b"\xff\xfe")  # dados inválidos para UTF-8
+        arq = Arquivo(caminho=caminho)
 
-    def test_diretorio_pai(self, arquivo_teste: Path) -> None:
-        """Deve retornar corretamente o diretório pai do arquivo."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert arquivo.diretorio_pai == arquivo_teste.parent
+        assert arq.ler() is None
 
-    def test_criar_arquivo_se_nao_existir(self) -> None:
-        """Deve criar um novo arquivo quando ele não existir."""
-        with TemporaryDirectory() as tmpdir:
-            caminho: Path = Path(tmpdir) / "novo.txt"
-            arquivo = Arquivo(caminho=caminho)
-            resultado: bool = arquivo.criar_arquivo_se_nao_existir()
-            assert resultado is True
-            assert caminho.exists()
+    def test_tamanho_e_datas_de_arquivo_inexistente(self, tmp_path: Path) -> None:
+        """Testa métodos que dependem de stat em arquivos removidos."""
+        caminho: Path = tmp_path / "apagado.txt"
+        caminho.write_text("teste")
+        arq = Arquivo(caminho=caminho)
+        caminho.unlink()  # remove o arquivo
 
-    def test_escrever_conteudo(self, arquivo_teste: Path) -> None:
-        """Deve sobrescrever o conteúdo do arquivo quando permitido."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        resultado: bool = arquivo.escrever_conteudo(conteudo_arquivo="novo conteudo", sobrescrever=True)
-        assert resultado is True
-        assert arquivo.ler_conteudo() == "novo conteudo"
+        assert arq.tamanho_bytes == 0
+        assert arq.criado_em is None
+        assert arq.modificado_em is None
 
-    def test_nao_sobrescrever_arquivo_existente(self, arquivo_teste: Path) -> None:
-        """Não deve sobrescrever o arquivo quando a ação de sobrescrever não é permitida."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        resultado: bool = arquivo.escrever_conteudo(conteudo_arquivo="ignorado", sobrescrever=False)
-        assert resultado is False
+    def test_criar_falha_por_oserror(
+        self, tmp_path: Path, monkeypatch: MonkeyPatch
+    ) -> None:
+        """Testa falha de criação de arquivo simulando OSError."""
 
-    def test_ler_conteudo(self, arquivo_teste: Path) -> None:
-        """Deve ler corretamente o conteúdo existente no arquivo."""
-        arquivo = Arquivo(caminho=arquivo_teste)
-        assert arquivo.ler_conteudo() == "conteúdo de teste"
+        caminho: Path = tmp_path / "erro.txt"
+        arq = Arquivo(caminho=caminho)
 
-    def test_ler_conteudo_inexistente(self) -> None:
-        """Deve retornar None ao tentar ler conteúdo de arquivo inexistente."""
-        arquivo = Arquivo(caminho=Path("/caminho/inexistente.txt"))
-        assert arquivo.ler_conteudo() is None
+        def fake_write_text(*args, **kwargs) -> NoReturn:
+            raise OSError("Erro simulado")
+
+        monkeypatch.setattr(target=Path, name="write_text", value=fake_write_text)
+
+        assert arq.criar(conteudo="dados") is False

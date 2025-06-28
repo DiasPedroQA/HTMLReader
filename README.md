@@ -99,11 +99,11 @@ pytest tests
 
 ## 🧪 Recomendações para Desenvolvimento
 
-* Use ambientes virtuais: `python -m venv .venv && source .venv/bin/activate`
-* Execute `make install` para instalar dependências.
-* Utilize `make lint` e `make format` para manter o código limpo.
-* Consulte os testes automatizados como exemplos de uso.
-* Leia os `docstrings` e as *type hints* para compreender os modelos e fluxos.
+- Use ambientes virtuais: `python -m venv .venv && source .venv/bin/activate`
+- Execute `make install` para instalar dependências.
+- Utilize `make lint` e `make format` para manter o código limpo.
+- Consulte os testes automatizados como exemplos de uso.
+- Leia o `docstring` e *type hints* para compreender os modelos e fluxos.
 
 ---
 
@@ -111,10 +111,10 @@ pytest tests
 
 Pull requests são bem-vindos! Para contribuir:
 
-1. Faça um fork do repositório
-2. Crie uma branch para sua feature ou correção
-3. Confirme se os testes passam com `make test`
-4. Envie um *pull request* com uma descrição clara
+- Faça um fork do repositório
+- Crie uma branch para sua feature ou correção
+- Confirme se os testes passam com `make test`
+- Envie um *pull request* com uma descrição clara
 
 ---
 
@@ -124,4 +124,4 @@ Este projeto está licenciado sob os termos da licença [MIT](LICENSE).
 
 ---
 
-> Projeto desenvolvido com foco didático e modular por [Pedro PM Dias](https://github.com/seu-usuario).
+> Projeto desenvolvido com foco didático e modular por [Pedro PM Dias](https://github.com/DiasPedroQA/HTMLReader).

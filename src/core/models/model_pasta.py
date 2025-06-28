@@ -1,97 +1,172 @@
 """
-Modelos relacionados à manipulação de diretórios no sistema de arquivos.
+Módulo para representação de diretórios com navegação e filtragem de arquivos.
 
-Define a classe `Pasta`, especialização de `CaminhoBase`, com operações comuns como:
-- Criação condicional
-- Listagem e análise de conteúdo
-- Cálculo de tamanho
-- Contagem por extensão
-- Detecção de arquivos ocultos
+Define a classe `Pasta`, que representa diretórios com funcionalidades como:
+- Listagem de arquivos e subpastas
+- Filtros por extensão, nome ou função personalizada
+- Cálculo de tamanho total e análise de conteúdo
 """
 
-from collections import Counter
+import os
 from pathlib import Path
+from dataclasses import dataclass
+from collections import Counter
+from collections.abc import Iterator, Callable
 
-from core.models.model_caminho_base import CaminhoBase
-from core.utils.formatadores import converter_bytes_em_tamanho_legivel, formatar_data_para_string, formatar_nome_arquivo
+from core.models.model_arquivo import Arquivo
 
 
-class Pasta(CaminhoBase):
-    """Representa um diretório e fornece métodos de inspeção e manipulação."""
+@dataclass
+class Pasta:
+    """
+    Representa um diretório no sistema de arquivos com funcionalidades
+    para navegação, busca e análise de arquivos e subdiretórios.
 
-    @property
-    def itens_diretos(self) -> list[CaminhoBase]:
-        """Retorna os itens diretamente contidos no diretório."""
-        if not self.caminho_existe or not self._path.is_dir():
-            print(f"Caminho {self.caminho_existe} não existe ou não é uma pasta")
-            return []
-        return [CaminhoBase(caminho=entrada) for entrada in self._path.iterdir()]
+    Atributos:
+        caminho (Path): Caminho absoluto ou relativo da pasta.
+    """
 
-    @property
-    def nome(self) -> str:
-        """Retorna o nome do diretório, formatado."""
-        return formatar_nome_arquivo(nome=self._path.stem)
+    caminho: Path
 
-    @property
-    def total_arquivos(self) -> int:
-        """Conta quantos arquivos existem diretamente no diretório."""
-        return sum(1 for item in self.itens_diretos if item.retornar_o_tipo == "Arquivo")
+    def validar(self) -> None:
+        """
+        Verifica se o atributo `caminho` referencia um diretório válido.
 
-    @property
-    def total_subpastas(self) -> int:
-        """Conta quantas subpastas existem diretamente no diretório."""
-        return sum(1 for item in self.itens_diretos if item.retornar_o_tipo == "Pasta")
+        Raises:
+            NotADirectoryError: Se `caminho` não for uma pasta válida.
+        """
+        if not self.caminho.is_dir():
+            raise NotADirectoryError(f"{self.caminho} não é um diretório válido.")
 
     @property
-    def possui_ocultos(self) -> bool:
-        """Verifica se há arquivos ou pastas ocultos (que começam com ponto)."""
-        return any(item.nome_caminho.startswith(".") for item in self.itens_diretos)
+    def arquivos(self) -> Iterator[Arquivo]:
+        """
+        Itera sobre os arquivos diretos contidos na pasta.
+
+        Yields:
+            Arquivo: Instância do model `Arquivo` para cada arquivo encontrado.
+        """
+        for item in self.caminho.iterdir():
+            if item.is_file():
+                yield Arquivo(caminho=item)
 
     @property
-    def data_modificacao_formatada(self) -> str | None:
-        """Retorna a data da última modificação no diretório, formatada."""
-        return formatar_data_para_string(data_e_hora=self.data_modificacao) if self.data_modificacao else None
+    def subpastas(self) -> Iterator["Pasta"]:
+        """
+        Itera sobre as subpastas diretas da pasta atual.
 
-    @property
-    def tamanho_formatado(self) -> str:
-        """Retorna o tamanho total do diretório em formato legível (KB, MB, etc)."""
-        return converter_bytes_em_tamanho_legivel(tamanho_bytes=self.calcular_tamanho_total())
+        Yields:
+            Pasta: Instância do model `Pasta` para cada subdiretório encontrado.
+        """
+        for item in self.caminho.iterdir():
+            if item.is_dir():
+                yield Pasta(caminho=item)
 
-    def listar_conteudo_recursivo(self) -> list[CaminhoBase]:
-        """Lista todos os arquivos e subpastas contidos no diretório, de forma recursiva."""
-        if not self.caminho_existe or not self._path.is_dir():
-            return []
-        return [CaminhoBase(caminho=item) for item in self._path.rglob(pattern="*")]
+    def buscar(
+        self,
+        nome: str | None = None,
+        extensao: str | None = None,
+        filtro: Callable[[Arquivo], bool] | None = None,
+    ) -> Iterator[Arquivo]:
+        """
+        Busca arquivos dentro da pasta que satisfaçam critérios opcionais.
 
-    def listar_ocultos(self) -> list[Path]:
-        """Retorna os caminhos dos itens ocultos diretamente contidos no diretório."""
-        return [item.caminho_absoluto for item in self.itens_diretos if item.nome_caminho.startswith(".")]
+        Args:
+            nome (str | None): Substring a ser buscada no nome do arquivo,
+                ignorando maiúsculas/minúsculas. Se None, não filtra por nome.
+            extensao (str | None): Extensão do arquivo a ser filtrada. Pode conter
+                ou não o ponto inicial (ex: ".py" ou "py"). Se None, não filtra.
+            filtro (Callable[[Arquivo], bool] | None): Função personalizada para
+                filtrar os arquivos. Recebe um objeto `Arquivo` e retorna bool.
+                Se None, não aplica filtro adicional.
+
+        Yields:
+            Arquivo: Arquivos que satisfazem todos os critérios especificados.
+        """
+        ext: str | None = extensao.lower().lstrip(".") if extensao else None
+        for arq in self.arquivos:
+            if nome and nome.lower() not in arq.nome.lower():
+                continue
+            if ext and arq.extensao != ext:
+                continue
+            if filtro and not filtro(arq):
+                continue
+            yield arq
 
     def calcular_tamanho_total(self) -> int:
-        """Soma os tamanhos de todos os arquivos contidos no diretório e subpastas."""
-        if not self.caminho_existe:
-            return 0
+        """
+        Calcula o tamanho total, em bytes, de todos os arquivos na pasta,
+        considerando também subdiretórios (recursivo).
 
-        total_bytes = 0
-        for arquivo in self._path.rglob(pattern="*"):
-            if arquivo.is_file():
+        Retorna:
+            int: Soma do tamanho de todos os arquivos válidos na pasta e subpastas.
+
+        Observações:
+            Ignora arquivos que não possam ser acessados (ex: erros de permissão).
+        """
+        total = 0
+        for raiz, _, arquivos in os.walk(self.caminho):
+            for arquivo in arquivos:
                 try:
-                    total_bytes += arquivo.stat().st_size
+                    total += (Path(raiz) / arquivo).stat().st_size
                 except OSError:
                     continue
-        return total_bytes
+        return total
 
     def contar_extensoes(self) -> dict[str, int]:
         """
-        Conta a quantidade de arquivos por extensão no diretório e subpastas.
+        Conta a ocorrência de cada extensão de arquivo presente na pasta e suas subpastas.
 
-        Returns:
-            dict[str, int]: Chaves são extensões, valores são contagens.
+        Retorna:
+            dict[str, int]: Dicionário onde as chaves são extensões em minúsculo (ex: ".py")
+            e os valores são a quantidade de arquivos com aquela extensão.
         """
-        if not self.caminho_existe:
-            return {}
-
         extensoes: list[str] = [
-            arquivo.suffix.lower() for arquivo in self._path.rglob(pattern="*") if arquivo.is_file() and arquivo.suffix
+            arq.suffix.lower()
+            for arq in self.caminho.rglob(pattern="*")
+            if arq.is_file() and arq.suffix
         ]
         return dict(Counter(extensoes))
+
+
+# def exemplo_pasta() -> None:
+#     print("\n🔍 Teste com pasta válida")
+#     pasta_atual = Pasta(caminho=Path("../"))
+
+#     try:
+#         pasta_atual.validar()
+#         print("✔️ Pasta válida.")
+
+#         print("📂 Subpastas:")
+#         for sub in pasta_atual.subpastas:
+#             print(f"  - {sub.caminho}")
+
+#         print("\n📄 Arquivos:")
+#         for arq in pasta_atual.arquivos:
+#             print(f"  - {arq.nome}")
+
+#         print("\n🔎 Buscar arquivos '.py':")
+#         for arq in pasta_atual.buscar(extensao=".py"):
+#             print(f"  - {arq.nome}")
+
+#         print(
+#             f"\n📐 Tamanho total da pasta: {pasta_atual.calcular_tamanho_total()} bytes"
+#         )
+
+#         print("\n📊 Extensões encontradas:")
+#         for ext, count in pasta_atual.contar_extensoes().items():
+#             print(f"  - {ext}: {count}")
+
+#     except NotADirectoryError as e:
+#         print(f"[ERRO] {e}")
+
+#     print("\n❌ Teste com pasta inexistente")
+#     pasta_invalida = Pasta(caminho=Path("caminho/que/nao/existe"))
+#     try:
+#         pasta_invalida.validar()
+#     except NotADirectoryError as e:
+#         print(f"[ERRO] {e}")
+
+
+# if __name__ == "__main__":
+#     exemplo_pasta()
