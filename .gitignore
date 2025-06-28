@@ -100,3 +100,8 @@ __pypackages__/
 # ========================
 celerybeat-schedule
 celerybeat.pid
+.logs_makefile/
+
+.ipynb
+teste_valido.txt
+Z_teste.ipynb

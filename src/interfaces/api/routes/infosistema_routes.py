@@ -33,7 +33,7 @@
 #     pasta_home: Pasta = dados["home"]
 
 #     return {
-#         "usuario": dados["usuario"],
+#         "usuario_logado": dados["usuario_logado"],
 #         "sistema": dados["sistema"],
 #         "versao": dados["versao"],
 #         "home": {

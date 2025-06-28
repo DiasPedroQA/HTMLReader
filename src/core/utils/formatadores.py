@@ -6,18 +6,17 @@ Inclui:
 - Formatação de datas
 - Interpretação de extensões
 - Representação textual de valores booleanos
-- Truncamento seguro de nomes de arquivos
 """
 
 from datetime import datetime
 
 
-def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
+def formatar_arquivo_tamanho_legivel(tamanho_bytes: int | float) -> str:
     """
     Converte bytes para uma representação legível (B, KB, MB, etc.).
 
     Args:
-        tamanho_bytes (int): Valor em bytes.
+        tamanho_bytes (int | float): Valor em bytes.
 
     Returns:
         str: Representação formatada como string.
@@ -26,35 +25,36 @@ def converter_bytes_em_tamanho_legivel(tamanho_bytes: int) -> str:
         return "0.00 B"
 
     unidades: list[str] = ["B", "KB", "MB", "GB", "TB"]
-    tamanho = float(tamanho_bytes)
+    tamanho_float = float(tamanho_bytes)
     unidade_index = 0
 
-    while tamanho >= 1024 and unidade_index < len(unidades) - 1:
-        tamanho /= 1024
+    while tamanho_float >= 1024 and unidade_index < len(unidades) - 1:
+        tamanho_float /= 1024
         unidade_index += 1
 
-    return f"{tamanho:.2f} {unidades[unidade_index]}"
+    return f"{tamanho_float:.2f} {unidades[unidade_index]}"
 
 
-def formatar_data_para_string(data_e_hora: datetime) -> str:
+def formatar_arquivo_data_para_string(float_data_e_hora: float) -> str:
     """
-    Formata um objeto datetime para o padrão brasileiro 'dd/mm/aaaa HH:MM:SS'.
+    Converte um timestamp float para o padrão brasileiro 'dd/mm/aaaa HH:MM:SS'.
 
     Args:
-        data_e_hora (datetime): Data a ser formatada.
+        float_data_e_hora (float): Timestamp a ser formatado.
 
     Returns:
         str: Data formatada.
     """
-    return data_e_hora.strftime(format="%d/%m/%Y %H:%M:%S")
+    data_e_hora: datetime = datetime.fromtimestamp(timestamp=float_data_e_hora)
+    return data_e_hora.strftime("%d/%m/%Y %H:%M:%S")
 
 
-def obter_extensao_legivel(extensao: str) -> str:
+def formatar_arquivo_obter_extensao_legivel(extensao_arquivo: str) -> str:
     """
     Converte uma extensão de arquivo para uma representação textual legível.
 
     Args:
-        extensao (str): Extensão do arquivo (com ou sem ponto).
+        extensao_arquivo (str): Extensão do arquivo (com ou sem ponto).
 
     Returns:
         str: Nome legível da extensão.
@@ -69,39 +69,21 @@ def obter_extensao_legivel(extensao: str) -> str:
         ".html": "HTML",
         ".log": "Log",
     }
-    extensao_normalizada: str = extensao.lower().strip()
+    extensao_normalizada: str = extensao_arquivo.lower().strip()
     if not extensao_normalizada.startswith("."):
         extensao_normalizada: str = f".{extensao_normalizada}"
 
     return mapa.get(extensao_normalizada, extensao_normalizada.strip(".").upper())
 
 
-def formatar_booleano(valor: bool) -> str:
+def formatar_arquivo_valor_booleano(valor) -> str:
     """
-    Converte valor booleano para texto 'Sim' ou 'Não'.
+    Converte valor booleano (ou truthy/falsy) para texto 'Sim' ou 'Não'.
 
     Args:
-        valor (bool): Valor booleano.
+        valor: Valor a ser interpretado como booleano.
 
     Returns:
         str: Texto correspondente.
     """
-    return "Sim" if valor else "Não"
-
-
-def formatar_nome_arquivo(nome: str, limite: int = 50) -> str:
-    """
-    Trunca nomes longos de arquivo, mantendo sufixo "...".
-
-    Args:
-        nome (str): Nome original.
-        limite (int): Tamanho máximo permitido.
-
-    Returns:
-        str: Nome truncado, se necessário.
-    """
-    if not nome:
-        return ""
-    if limite < 4:
-        return "..."
-    return nome if len(nome) <= limite else nome[: limite - 3] + "..."
+    return "Sim" if bool(valor) else "Não"
