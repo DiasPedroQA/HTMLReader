@@ -33,7 +33,7 @@ jobs:
           pip install ruff mypy isort pylint
 
       - name: Verificar Lint (Ruff)
-        run: ruff check . --format github
+        run: ruff check .
 
       - name: Verificar Tipagem (Mypy)
         run: mypy app/
