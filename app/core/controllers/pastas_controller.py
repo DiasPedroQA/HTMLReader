@@ -7,9 +7,9 @@
 
 # from pathlib import Path
 
-# from core.models.model_arquivo import Arquivo
-# from core.models.model_caminho_base import CaminhoBase
-# from core.models.model_pasta import Pasta
+# from app.core.models.model_arquivo import Arquivo
+# from app.core.models.model_caminho_base import CaminhoBase
+# from app.core.models.model_pasta import Pasta
 
 
 # class PastasController:

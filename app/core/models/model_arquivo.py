@@ -14,8 +14,9 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
-from core.utils.formatadores import (
+from app.core.utils.formatadores import (
     # ErroAcessoArquivo,
     # MetadadosArquivo,
     # Permissoes,
@@ -46,10 +47,9 @@ class Arquivo:
     """
 
     caminho_arquivo: str | Path
-    dados_arquivo: dict[
-        str,
-        str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int],
-    ] = field(init=False, repr=False)
+    # Use the correct type for MetadadosArquivo if available, otherwise use Any
+    dados_arquivo: Any = field(init=False, repr=False)
+    _dados: Any = field(init=False, repr=False)
     _cache_checksum: str | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:

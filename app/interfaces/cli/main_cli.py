@@ -1,5 +1,5 @@
 # import argparse
-# from core.controllers.conversao_controller import ConversaoController
+# from app.core.controllers.conversao_controller import ConversaoController
 
 
 # def main() -> None:

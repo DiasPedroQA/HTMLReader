@@ -13,7 +13,7 @@
 
 # from pytest import MonkeyPatch
 
-# from core.models.model_arquivo import Arquivo
+# from app.core.models.model_arquivo import Arquivo
 
 
 # class TestArquivo:

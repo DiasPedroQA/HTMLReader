@@ -148,7 +148,9 @@ def validar_caminho(caminho: str | Path) -> Path:
     try:
         path.exists()
     except Exception as e:
-        raise ErroAcessoArquivo(mensagem="Erro ao acessar caminho", caminho=caminho, original=e) from e
+        raise ErroAcessoArquivo(
+            mensagem="Erro ao acessar caminho", caminho=caminho, original=e
+        ) from e
     return path
 
 
@@ -224,7 +226,9 @@ def coletar_info_basica(path: Path, stats: stat_result) -> MetadadosArquivo:
     if path.is_file():
         resultado["tipo"] = "arquivo"
         resultado["extensao"] = path.suffix.lower()
-        resultado["extensao_legivel"] = path.suffix[1:].upper() if path.suffix else "Sem extensão"
+        resultado["extensao_legivel"] = (
+            path.suffix[1:].upper() if path.suffix else "Sem extensão"
+        )
     elif path.is_dir():
         resultado["tipo"] = "pasta"
 
@@ -250,10 +254,16 @@ def gerar_dados_item(caminho: str | Path) -> MetadadosArquivo:
         return coletar_info_basica(path=caminho_path, stats=stats)
     except PermissionError as e:
         logger.error(msg=f"Permissão negada: {caminho_path}")
-        raise ErroAcessoArquivo(mensagem="Permissão negada", caminho=caminho_path, original=e) from e
+        raise ErroAcessoArquivo(
+            mensagem="Permissão negada", caminho=caminho_path, original=e
+        ) from e
     except FileNotFoundError as e:
-        logger.error(msg=f"Erro inesperado ao processar {caminho_path}: {e}", exc_info=True)
-        raise ErroAcessoArquivo(mensagem="Erro inesperado", caminho=caminho_path, original=e) from e
+        logger.error(
+            msg=f"Erro inesperado ao processar {caminho_path}: {e}", exc_info=True
+        )
+        raise ErroAcessoArquivo(
+            mensagem="Erro inesperado", caminho=caminho_path, original=e
+        ) from e
 
 
 def converter_tamanho(tamanho_bytes: int | float, precisao: int = 2) -> str:

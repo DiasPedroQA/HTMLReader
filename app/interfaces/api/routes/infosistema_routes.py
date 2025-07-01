@@ -1,17 +1,17 @@
 """Rotas da API responsáveis por fornecer informações do sistema operacional."""
 
 # from fastapi import APIRouter
-# from core.controllers.info_sistema_controller import InfoSistemaController
-# from core.models.models_dominio import Pasta
-# from core.models.pasta_models import Pasta
-# from core.controllers.pasta_controller import PastaController
-# from core.controllers.conversao_controller import ConversaoController
-# from core.controllers.file_path_controller import listar_arquivos_html
-# from core.utils.visor_service import ler_conteudo_arquivo
-# from core.utils.system_info import (
+# from app.core.controllers.info_sistema_controller import InfoSistemaController
+# from app.core.models.models_dominio import Pasta
+# from app.core.models.pasta_models import Pasta
+# from app.core.controllers.pasta_controller import PastaController
+# from app.core.controllers.conversao_controller import ConversaoController
+# from app.core.controllers.file_path_controller import listar_arquivos_html
+# from app.core.utils.visor_service import ler_conteudo_arquivo
+# from app.core.utils.system_info import (
 #     obter_infos_sistema,
 # )  # crie esse service com PathBuilder, se ainda não existir
-# from core.utils.visor_service import detalhar_arquivo
+# from app.core.utils.visor_service import detalhar_arquivo
 # from fastapi import APIRouter, UploadFile, File, HTTPException
 # from fastapi.responses import JSONResponse
 
@@ -52,8 +52,8 @@
 # """
 
 # from fastapi import APIRouter, HTTPException
-# from core.models.modelos_api import InfoSistemaOut
-# from core.controllers.info_sistema_controller import InfoSistemaController
+# from app.core.models.modelos_api import InfoSistemaOut
+# from app.core.controllers.info_sistema_controller import InfoSistemaController
 
 # router = APIRouter(prefix="/sistema", tags=["Info Sistema"])
 # controller = InfoSistemaController()
@@ -75,9 +75,9 @@
 
 # from fastapi import APIRouter, HTTPException, Query
 
-# from core.controllers.explorador_controller import ExploradorController
-# from core.models.modelos_api import ItemDePasta
-# from core.models.models_exceptions import (
+# from app.core.controllers.explorador_controller import ExploradorController
+# from app.core.models.modelos_api import ItemDePasta
+# from app.core.models.models_exceptions import (
 #     CaminhoNaoEncontradoError,
 #     CaminhoNaoEDiretorioError,
 #     PermissaoNegadaError,

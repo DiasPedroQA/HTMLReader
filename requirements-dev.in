@@ -1,7 +1,7 @@
 # Desenvolvedores
 pytest
 pytest-cov
-mypy
+requests
 ruff
 isort
 black

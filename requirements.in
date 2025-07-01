@@ -9,3 +9,4 @@ pytest
 pytest-cov
 uvicorn
 psutil
+# requests

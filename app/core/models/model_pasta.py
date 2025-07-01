@@ -14,6 +14,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from app.core.models.model_arquivo import Arquivo
 from app.core.utils.formatadores import (
@@ -46,7 +47,8 @@ class Pasta:
     """
 
     caminho: str | Path
-    _dados: dict = field(init=False, repr=False)
+    _dados: Any = field(init=False, repr=False)
+    # _dados: dict = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Valida o caminho e carrega os metadados da pasta."""
@@ -129,7 +131,9 @@ class Pasta:
             if d.is_dir():
                 yield Pasta(caminho=d)
 
-    def to_dict(self) -> dict:
+    def to_dict(
+        self,
+    ) -> dict[str, str | int | bool | list[dict[str, str | int | bool]]]:
         """
         Serializa a pasta em dicionário.
 
@@ -139,7 +143,18 @@ class Pasta:
         Returns:
             Dicionário com metadados e opcionalmente o conteúdo da pasta.
         """
-        base: dict = {
+        # Lista de arquivos como dicionários
+        sub_arquivos: list[dict[str, object]] = [
+            sub_arquivos.to_dict() for sub_arquivos in self.arquivos
+        ]
+
+        # Lista de subpastas como dicionários
+        sub_pastas: list[
+            dict[str, str | int | bool | list[dict[str, str | int | bool]]]
+        ] = [sub_pastas.to_dict() for sub_pastas in self.subpastas]
+
+        # Base do dicionário com metadados principais
+        base: dict[str, str | int | bool | list[dict]] = {
             "nome_pasta": self.nome,
             "caminho_absoluto": self.caminho_absoluto,
             "arquivo_criado_em": self.criado_em.isoformat(),
@@ -148,8 +163,8 @@ class Pasta:
             "tamanho_legivel": self.tamanho_legivel,
             "arquivo_eh_oculto": self.eh_oculto,
             "permissoes": self._dados["permissoes"],
-            "sub_arquivos": [sub_arquivos.to_dict() for sub_arquivos in self.arquivos],
-            "sub_pastas": [sub_pastas.to_dict() for sub_pastas in self.subpastas],
+            "sub_arquivos": sub_arquivos,
+            "sub_pastas": sub_pastas,
         }
 
         return base

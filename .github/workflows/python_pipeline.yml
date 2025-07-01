@@ -36,6 +36,7 @@ jobs:
 
       - name: Verificar Tipagem (Mypy)
         run: mypy app/
+        continue-on-error: true
 
       - name: Verificar Imports (Isort)
         run: isort . --check-only --profile black

@@ -1,15 +1,18 @@
 .PHONY: help venv install compile lint format test coverage coverage-html tdd run-cli run-gui run-api clean all pre setup post
 
 # Variáveis principais
-PYTHON := python3
-PIP := pip
-PYTEST := pytest
-RUFF := ruff
-MYPY := mypy
-ISORT := isort
-BLACK := black
+VENV_PATH := app-tkinter-venv
+PYTHON := $(VENV_PATH)/bin/python
+PIP := $(VENV_PATH)/bin/pip
+PIP_COMPILE := $(VENV_PATH)/bin/pip-compile
+PYTEST := $(VENV_PATH)/bin/pytest
+RUFF := $(VENV_PATH)/bin/ruff
+MYPY := $(VENV_PATH)/bin/mypy
+ISORT := $(VENV_PATH)/bin/isort
+BLACK := $(VENV_PATH)/bin/black
 SRC := app
 TESTS := tests
+
 
 # ====================================
 # AJUDA
@@ -36,18 +39,19 @@ help:
 # AMBIENTE VIRTUAL E DEPENDÊNCIAS
 # ====================================
 venv:
-	@$(PYTHON) -m venv app-tkinter-venv
-	@echo "Ambiente virtual criado em app-tkinter-venv"
+	@python3 -m venv $(VENV_PATH)
+	@echo "Ambiente virtual criado em $(VENV_PATH)"
 
 install:
-	@$(PIP) install --upgrade pip
-	@if [ -f requirements.txt ]; then $(PIP) install -r requirements.txt; fi
-	@if [ -f requirements-dev.txt ]; then $(PIP) install -r requirements-dev.txt; fi
+	@echo "Usando pip: $(PIP)"
+	@$(PIP) install --upgrade pip --break-system-packages
+	@if [ -f requirements.txt ]; then $(PIP) install -r requirements.txt --break-system-packages; fi
+	@if [ -f requirements-dev.txt ]; then $(PIP) install -r requirements-dev.txt --break-system-packages; fi
 
 compile:
-	@$(PIP) install pip-tools
-	@pip-compile requirements.in --output-file=requirements.txt
-	@pip-compile requirements-dev.in --output-file=requirements-dev.txt
+	@$(PIP) install pip-tools --break-system-packages
+	@$(PIP_COMPILE) requirements.in --output-file=requirements.txt
+	@$(PIP_COMPILE) requirements-dev.in --output-file=requirements-dev.txt
 
 # ====================================
 # LINT E FORMATAÇÃO

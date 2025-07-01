@@ -9,7 +9,7 @@
 
 # from pathlib import Path
 
-# from core.models.model_arquivo import Arquivo
+# from app.core.models.model_arquivo import Arquivo
 
 
 # def demonstrar_uso_arquivo() -> None:

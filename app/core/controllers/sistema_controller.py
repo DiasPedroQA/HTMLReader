@@ -27,7 +27,7 @@ class SistemaController:
 
     def __init__(self, versao_api: str) -> None:
         self._versao_api: str = versao_api
-        self._boot_time: datetime = datetime.fromtimestamp(psutil.boot_time())
+        self._boot_time: datetime = datetime.fromtimestamp(timestamp=psutil.boot_time())
 
     def obter_info(self) -> SistemaInfo:
         """
@@ -43,9 +43,9 @@ class SistemaController:
             nome_maquina=platform.node(),
             separador_diretorio=os.sep,
             diretorio_atual=os.getcwd(),
-            raiz_sistema_arquivos=os.path.abspath(os.sep),
+            raiz_sistema_arquivos=os.path.abspath(path=os.sep),
             codificacao_padrao=sys.getdefaultencoding(),
             tempo_desde_boot=str(datetime.now() - self._boot_time),
             versao_api=self._versao_api,
-            diretorio_usuario=os.path.expanduser("~"),
+            diretorio_usuario=os.path.expanduser(path="~"),
         )
