@@ -9,7 +9,6 @@ on:
     - cron: '40 17 * * 3'  # Executa toda quarta-feira às 17:40 UTC
 
 env:
-  PYTHONPATH: app
   PYTHON_VERSION: '3.12'
 
 jobs:
