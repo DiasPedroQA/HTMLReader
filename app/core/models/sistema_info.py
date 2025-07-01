@@ -26,7 +26,8 @@ class SistemaInfo(BaseModel):
         codificacao_padrao: Codificação padrão do sistema (ex: 'utf-8').
         tempo_desde_boot: Tempo de atividade da máquina desde o último boot, em string legível.
         versao_api: Versão da API que está retornando os dados.
-        diretorio_usuario: Caminho absoluto para o diretório inicial do usuário (ex: '/home/usuario', 'C:\\Users\\usuario').
+        diretorio_usuario: Caminho absoluto para o diretório inicial do usuário
+        (ex: '/home/usuario', 'C:\\Users\\usuario').
     """
 
     sistema_operacional: str

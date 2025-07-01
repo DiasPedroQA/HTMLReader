@@ -8,254 +8,189 @@ Este módulo define a classe `Arquivo`, encapsulando operações comuns sobre ar
 - Suporte a operadores e navegação
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from app.core.utils.formatadores import (
     # ErroAcessoArquivo,
-    # MetadadosArquivo,
-    # Permissoes,
-    # PermissoesDetalhadas,
-    # Proprietario,
+    MetadadosArquivo,
+    Permissoes,
+    PermissoesDetalhadas,
     # Tempos,
-    # coletar_info_basica,
-    # coletar_permissoes,
-    # coletar_tempos,
     converter_tamanho,
     gerar_dados_item,
-    # validar_caminho,
+    validar_caminho,
 )
 
-logger: logging.Logger = logging.getLogger(name=__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class Arquivo:
     """
-    Representa um arquivo no sistema de arquivos com operações seguras e metadados.
-
-    Esta classe encapsula:
-    - Validação e leitura de arquivos
-    - Geração de metadados completos via `gerar_dados_item`
-    - Cálculo de checksum MD5 com cache
-    - Serialização e leitura segura do conteúdo
+    Representa um arquivo com acesso seguro a metadados e conteúdo.
     """
 
     caminho_arquivo: str | Path
-    # Use the correct type for MetadadosArquivo if available, otherwise use Any
-    dados_arquivo: Any = field(init=False, repr=False)
-    _dados: Any = field(init=False, repr=False)
+    dados_arquivo: MetadadosArquivo = field(init=False, repr=False)
     _cache_checksum: str | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
-        self.caminho_arquivo = Path(self.caminho_arquivo)
+        self.caminho_arquivo = validar_caminho(caminho=self.caminho_arquivo)
         if not self.caminho_arquivo.is_file():
             raise FileNotFoundError(f"Caminho não é um arquivo: {self.caminho_arquivo}")
         self._carregar_metadados()
 
     def _carregar_metadados(self) -> None:
-        """Carrega os metadados do arquivo utilizando o utilitário `gerar_dados_item`."""
         try:
-            self.dados_arquivo = gerar_dados_item(caminho=self.caminho_arquivo)
-        except ValueError as e:
+            self.dados_arquivo = gerar_dados_item(self.caminho_arquivo)
+        except Exception as e:
             logger.error(msg=f"Erro ao carregar metadados: {e}")
             raise
 
     def atualizar_metadados(self) -> None:
-        """Atualiza os metadados e invalida o cache do checksum."""
+        """Atualiza os metadados e limpa o cache do checksum."""
         self._carregar_metadados()
         self._cache_checksum = None
 
     @property
     def checksum(self) -> str:
-        """Calcula o checksum MD5 com cache para otimização."""
-        if self._cache_checksum is not None:
+        """Calcula o checksum MD5 com cache."""
+        caminho_interpretado = Path(self.caminho_arquivo)
+        if self._cache_checksum:
             return self._cache_checksum
 
         try:
-            self.caminho_arquivo = Path(self.caminho_arquivo)
-            # Removido tipo inválido 'hashlib.HASH'
             hash_md5 = hashlib.md5(usedforsecurity=False)
-            with self.caminho_arquivo.open("rb") as f:
+            with caminho_interpretado.open("rb") as f:
                 for chunk in iter(lambda: f.read(4096), b""):
                     hash_md5.update(chunk)
             self._cache_checksum = hash_md5.hexdigest()
             return self._cache_checksum
         except Exception as e:
             logger.error(msg=f"Erro ao calcular checksum: {e}")
-            raise RuntimeError(
-                f"Falha ao ler arquivo para checksum: {self.nome}"
-            ) from e
+            raise RuntimeError(f"Erro ao ler arquivo: {self.nome}") from e
 
     def ler(self, encoding: str = "utf-8", tamanho_max: int = 10_000_000) -> str:
-        """
-        Lê o conteúdo do arquivo como texto.
-
-        Args:
-            encoding: Codificação do arquivo. Padrão é 'utf-8'.
-            tamanho_max: Tamanho máximo permitido para leitura, em bytes.
-
-        Returns:
-            Conteúdo do arquivo como string.
-
-        Raises:
-            RuntimeError: Se ocorrer erro na leitura ou o tamanho exceder o limite.
-        """
+        """Lê o conteúdo do arquivo como texto."""
         try:
-            self.caminho_arquivo = Path(self.caminho_arquivo)
-            tamanho: int = self.caminho_arquivo.stat().st_size
+            caminho_interpretado = Path(self.caminho_arquivo)
+            tamanho: int = caminho_interpretado.stat().st_size
             if tamanho > tamanho_max:
                 raise RuntimeError(
-                    f"Arquivo muito grande ({tamanho} bytes). Limite: {tamanho_max}"
+                    f"Arquivo excede o tamanho permitido: {tamanho} bytes"
                 )
-            return self.caminho_arquivo.read_text(encoding=encoding)
+            return caminho_interpretado.read_text(encoding=encoding)
         except UnicodeDecodeError:
-            logger.warning(msg=f"Falha ao decodificar {self.nome} como {encoding}")
+            logger.warning(msg=f"Falha ao decodificar {self.nome}")
             return ""
         except Exception as e:
             logger.error(msg=f"Erro na leitura: {e}")
             raise RuntimeError(f"Falha ao ler {self.nome}") from e
 
     def to_dict(self) -> dict[str, object]:
-        """
-        Serializa o objeto Arquivo em um dicionário com os dados principais e opcionais.
-
-        Returns:
-            Dicionário representando os dados do arquivo.
-        """
-        base: dict[str, object] = {
-            "nome_arquivo": str(self.nome),
-            "caminho_arquivo": str(self.caminho_arquivo),
-            "tamanho": int(self.tamanho_bytes),
-            "tamanho_legivel": str(self.tamanho_legivel),
-            "arquivo_criado_em": self.criado_em.isoformat(),
-            "arquivo_modificado_em": self.modificado_em.isoformat(),
-            "extensao_arquivo": str(self.extensao),
-            "arquivo_eh_oculto": bool(self.eh_oculto),
-            "permissoes": self.dados_arquivo["permissoes"],
-            "id_arquivo": str(self.checksum),
+        """Serializa o objeto como dicionário."""
+        return {
+            "nome": self.nome,
+            "caminho": str(self.caminho_arquivo),
+            "tamanho": self.tamanho_bytes,
+            "tamanho_legivel": self.tamanho_legivel,
+            "criado_em": self.criado_em.isoformat(),
+            "modificado_em": self.modificado_em.isoformat(),
+            "acessado_em": self.acessado_em.isoformat(),
+            "extensao": self.extensao,
+            "eh_oculto": self.eh_oculto,
+            "permissoes": self.permissoes_detalhadas,
+            "checksum": self.checksum,
         }
 
-        return base
+    def to_json(self) -> str:
+        """Serializa como JSON formatado."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
+
+    # ----------------------------
+    # Propriedades derivadas
+    # ----------------------------
 
     @property
     def nome(self) -> str:
-        """Retorna o nome do arquivo."""
-        return str(self.dados_arquivo["nome"])
+        return self.dados_arquivo["nome"]
 
     @property
     def extensao(self) -> str:
-        """Retorna a extensão do arquivo, se houver."""
-        return str(self.dados_arquivo.get("extensao", ""))
+        return self.dados_arquivo.get("extensao", "")
 
     @property
     def tamanho_bytes(self) -> int:
-        """Retorna o tamanho do arquivo em bytes."""
-        valor: (
-            str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int]
-        ) = self.dados_arquivo.get("tamanho_bytes", 0)
-        # Garante que só converte para int se for int, float ou str numérico
-        if isinstance(valor, int):
-            return valor
-        if isinstance(valor, float):
-            return int(valor)
-        if isinstance(valor, str):
-            try:
-                return int(valor)
-            except ValueError:
-                return 0
-        # Se for qualquer outro tipo (dict, bool, etc), retorna 0
-        return 0
+        return int(self.dados_arquivo.get("tamanho_bytes", 0))
 
     @property
     def tamanho_legivel(self) -> str:
-        """Retorna o tamanho do arquivo em formato legível (ex: KB, MB)."""
-        return str(converter_tamanho(tamanho_bytes=self.tamanho_bytes))
-
-    @property
-    def modificado_em(self) -> datetime:
-        """Retorna a data e hora da última modificação do arquivo."""
-        valor: (
-            str
-            | int
-            | datetime
-            | bool
-            | dict[str, dict[str, bool]]
-            | dict[str, int]
-            | None
-        ) = self.dados_arquivo.get("data_modificacao")
-        return (
-            valor
-            if isinstance(valor, datetime)
-            else datetime.fromtimestamp(timestamp=0)
-        )
+        return converter_tamanho(self.tamanho_bytes)
 
     @property
     def criado_em(self) -> datetime:
-        """Retorna a data e hora da criação do arquivo."""
-        valor: (
-            str
-            | int
-            | datetime
-            | bool
-            | dict[str, dict[str, bool]]
-            | dict[str, int]
-            | None
-        ) = self.dados_arquivo.get("data_criacao")
-        return (
-            valor
-            if isinstance(valor, datetime)
-            else datetime.fromtimestamp(timestamp=0)
-        )
+        return self.dados_arquivo.get("data_criacao", datetime.fromtimestamp(0))
+
+    @property
+    def modificado_em(self) -> datetime:
+        return self.dados_arquivo.get("data_modificacao", datetime.fromtimestamp(0))
+
+    @property
+    def acessado_em(self) -> datetime:
+        return self.dados_arquivo.get("data_acesso", datetime.fromtimestamp(0))
 
     @property
     def eh_oculto(self) -> bool:
-        """Indica se o arquivo é oculto (nome iniciado por ponto)."""
-        valor: (
-            str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int]
-        ) = self.dados_arquivo.get("eh_oculto", False)
-        return bool(valor)
+        return self.dados_arquivo.get("eh_oculto", False)
 
-    def __eq__(self, outro: object) -> bool:
-        """Compara dois arquivos com base em seus checksums."""
-        return isinstance(outro, Arquivo) and self.checksum == outro.checksum
+    @property
+    def permissoes_detalhadas(self) -> PermissoesDetalhadas:
+        return self.dados_arquivo["permissoes"]
+
+    @property
+    def permissoes_usuario(self) -> Permissoes:
+        return self.permissoes_detalhadas["usuario"]
+
+    # ----------------------------
+    # Métodos utilitários
+    # ----------------------------
+
+    def tem_leitura(self) -> bool:
+        """Verifica se o usuário tem permissão de leitura."""
+        return self.permissoes_usuario.get("ler", False)
+
+    def tem_escrita(self) -> bool:
+        """Verifica se o usuário tem permissão de escrita."""
+        return self.permissoes_usuario.get("escrever", False)
+
+    def tem_execucao(self) -> bool:
+        """Verifica se o usuário tem permissão de execução."""
+        return self.permissoes_usuario.get("executar", False)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Arquivo) and self.checksum == other.checksum
 
     def __repr__(self) -> str:
-        """Retorna representação resumida do objeto."""
         return f"Arquivo(nome='{self.nome}', caminho='{self.caminho_arquivo}')"
-
-    def to_json(self) -> str:
-        """
-        Serializa o objeto Arquivo em JSON.
-
-        Returns:
-            String JSON representando os dados do arquivo.
-        """
-        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 def exemplo_uso_arquivo(caminho: str | Path) -> None:
-    """
-    Exemplo de uso moderno com correspondência manual
-    ao invés de `match` direto em propriedades.
-
-    Args:
-        caminho: Caminho para o arquivo a ser processado.
-    """
-    arquivo = Arquivo(caminho_arquivo=caminho)
-
-    match arquivo:
-        case _ if arquivo.nome.endswith(".html"):
-            print(f"Arquivo de texto encontrado: {arquivo.nome}")
-        case _ if arquivo.extensao == ".py":
-            print("Arquivo Python encontrado")
-        case _:
-            print("Outro tipo de arquivo")
+    """Demonstração de uso da classe Arquivo."""
+    try:
+        arquivo = Arquivo(caminho_arquivo=caminho)
+        print(f"\n📁 Metadados:\n{arquivo.to_json()}")
+        conteudox: str = arquivo.ler()
+        if conteudox:
+            print(f"\n📄 Conteúdo (parcial):\n{conteudox[:300]}...")
+    except ValueError as e:
+        logger.error(msg=f"Erro ao processar arquivo: {e}")
 
 
 # Exemplo de uso

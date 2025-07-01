@@ -2,11 +2,11 @@
 Utilitários para extração e formatação de metadados de arquivos e diretórios.
 
 Este módulo oferece:
-- Tipos nomeados com `TypedDict` para estruturação precisa de metadados
-- Funções para validar caminhos, extrair permissões e tempos
-- Geração unificada de dados com `gerar_dados_item`
-- Conversão de tamanhos legíveis com `converter_tamanho`
-- Tratamento seguro de erros com `ErroAcessoArquivo`
+- Tipos nomeados com `TypedDict` para estruturação precisa de metadados;
+- Funções para validar caminhos, extrair permissões e tempos;
+- Geração unificada de dados com `gerar_dados_item`;
+- Conversão de tamanhos legíveis com `converter_tamanho`;
+- Tratamento seguro de erros com `ErroAcessoArquivo`.
 
 Compatível com Python 3.12 e tipagem moderna.
 """
@@ -20,18 +20,15 @@ from os import stat_result
 from pathlib import Path
 from typing import Literal, TypedDict
 
-logger: logging.Logger = logging.getLogger(name=__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
-
-# -----------------------------
+# -------------------------------------
 # Tipos nomeados para metadados
-# -----------------------------
+# -------------------------------------
 
 
 class Permissoes(TypedDict):
-    """
-    Permissões básicas de leitura, escrita e execução para uma categoria de usuário.
-    """
+    """Permissões básicas de leitura, escrita e execução para uma categoria de usuário."""
 
     ler: bool
     escrever: bool
@@ -39,9 +36,7 @@ class Permissoes(TypedDict):
 
 
 class PermissoesDetalhadas(TypedDict):
-    """
-    Permissões detalhadas divididas por tipo de usuário: usuário, grupo e outros.
-    """
+    """Permissões divididas por tipo de usuário: usuário, grupo e outros."""
 
     usuario: Permissoes
     grupo: Permissoes
@@ -49,18 +44,14 @@ class PermissoesDetalhadas(TypedDict):
 
 
 class Proprietario(TypedDict):
-    """
-    Identificadores de propriedade do sistema: UID e GID.
-    """
+    """Identificadores de propriedade do sistema: UID e GID."""
 
     uid: int
     gid: int
 
 
 class Tempos(TypedDict):
-    """
-    Datas relevantes de um item: criação, modificação e último acesso.
-    """
+    """Datas relevantes de um item: criação, modificação e último acesso."""
 
     data_criacao: datetime
     data_modificacao: datetime
@@ -68,9 +59,7 @@ class Tempos(TypedDict):
 
 
 class MetadadosArquivo(TypedDict, total=False):
-    """
-    Estrutura completa de metadados extraídos de um arquivo ou diretório.
-    """
+    """Estrutura completa de metadados extraídos de um arquivo ou diretório."""
 
     nome: str
     caminho_absoluto: str
@@ -88,20 +77,13 @@ class MetadadosArquivo(TypedDict, total=False):
     data_acesso: datetime
 
 
-# -----------------------------
-# Exceções personalizadas
-# -----------------------------
+# -------------------------------------
+# Exceção personalizada
+# -------------------------------------
 
 
 class ErroAcessoArquivo(Exception):
-    """
-    Exceção personalizada para falhas ao acessar um caminho no sistema de arquivos.
-
-    Args:
-        mensagem: Mensagem explicativa do erro.
-        caminho: Caminho que causou o erro (opcional).
-        original: Exceção original que foi capturada (opcional).
-    """
+    """Exceção para falhas ao acessar um caminho no sistema de arquivos."""
 
     def __init__(
         self,
@@ -109,13 +91,13 @@ class ErroAcessoArquivo(Exception):
         caminho: str | Path | None = None,
         original: Exception | None = None,
     ) -> None:
-        self.caminho: str | None = str(caminho) if caminho else None
-        self.mensagem: str = mensagem
-        self.original: Exception | None = original
+        self.caminho = str(caminho) if caminho else None
+        self.mensagem = mensagem
+        self.original = original
         super().__init__(self.__str__())
 
     def __str__(self) -> str:
-        msg: str = f"ErroAcessoArquivo: {self.mensagem}"
+        msg = f"ErroAcessoArquivo: {self.mensagem}"
         if self.caminho:
             msg += f" | Caminho: {self.caminho}"
         if self.original:
@@ -123,47 +105,31 @@ class ErroAcessoArquivo(Exception):
         return msg
 
 
-# -----------------------------
+# -------------------------------------
 # Funções principais
-# -----------------------------
+# -------------------------------------
 
 
 def validar_caminho(caminho: str | Path) -> Path:
     """
     Verifica se o caminho é válido e acessível.
 
-    Args:
-        caminho: String ou objeto Path representando o caminho.
-
-    Returns:
-        Objeto Path validado.
-
     Raises:
-        TypeError: Se o tipo não for suportado.
-        ErroAcessoArquivo: Se houver falha de acesso.
+        TypeError: Se o tipo for inválido.
+        ErroAcessoArquivo: Se o caminho não puder ser acessado.
     """
     if not isinstance(caminho, (str, Path)):
         raise TypeError(f"Tipo inválido para caminho: {type(caminho)}")
     path = Path(caminho)
     try:
-        path.exists()
+        _ = path.exists()
     except Exception as e:
-        raise ErroAcessoArquivo(
-            mensagem="Erro ao acessar caminho", caminho=caminho, original=e
-        ) from e
+        raise ErroAcessoArquivo("Erro ao acessar caminho", caminho, e) from e
     return path
 
 
 def coletar_permissoes(stats: stat_result) -> PermissoesDetalhadas:
-    """
-    Extrai permissões de leitura, escrita e execução para cada tipo de usuário.
-
-    Args:
-        stats: Resultado da chamada `Path.stat()`.
-
-    Returns:
-        Dicionário com permissões detalhadas.
-    """
+    """Extrai permissões de leitura, escrita e execução para cada tipo de usuário."""
     return {
         "usuario": {
             "ler": bool(stats.st_mode & stat.S_IRUSR),
@@ -184,33 +150,16 @@ def coletar_permissoes(stats: stat_result) -> PermissoesDetalhadas:
 
 
 def coletar_tempos(stats: stat_result) -> Tempos:
-    """
-    Converte os tempos brutos de sistema para objetos datetime.
-
-    Args:
-        stats: Resultado da chamada `Path.stat()`.
-
-    Returns:
-        Dicionário com os tempos como datetime.
-    """
+    """Converte os tempos brutos do sistema para objetos `datetime`."""
     return {
-        "data_criacao": datetime.fromtimestamp(timestamp=stats.st_ctime),
-        "data_modificacao": datetime.fromtimestamp(timestamp=stats.st_mtime),
-        "data_acesso": datetime.fromtimestamp(timestamp=stats.st_atime),
+        "data_criacao": datetime.fromtimestamp(stats.st_ctime),
+        "data_modificacao": datetime.fromtimestamp(stats.st_mtime),
+        "data_acesso": datetime.fromtimestamp(stats.st_atime),
     }
 
 
 def coletar_info_basica(path: Path, stats: stat_result) -> MetadadosArquivo:
-    """
-    Coleta metadados básicos e detalhados de um caminho.
-
-    Args:
-        path: Caminho como Path.
-        stats: Resultado da chamada `path.stat()`.
-
-    Returns:
-        Estrutura `MetadadosArquivo` com os dados extraídos.
-    """
+    """Coleta metadados básicos e detalhados de um caminho."""
     resultado: MetadadosArquivo = {
         "nome": path.name,
         "caminho_absoluto": str(path.absolute()),
@@ -237,45 +186,26 @@ def coletar_info_basica(path: Path, stats: stat_result) -> MetadadosArquivo:
 
 def gerar_dados_item(caminho: str | Path) -> MetadadosArquivo:
     """
-    Agrega todas as informações relevantes de um item de caminho.
-
-    Args:
-        caminho: Caminho para arquivo ou diretório.
-
-    Returns:
-        Metadados completos da entidade.
+    Agrega todas as informações relevantes de um arquivo ou diretório.
 
     Raises:
         ErroAcessoArquivo: Em caso de erro de leitura ou permissão.
     """
-    caminho_path: Path = validar_caminho(caminho=caminho)
+    caminho_path = validar_caminho(caminho)
     try:
-        stats: stat_result = caminho_path.stat()
-        return coletar_info_basica(path=caminho_path, stats=stats)
+        stats = caminho_path.stat()
+        return coletar_info_basica(caminho_path, stats)
     except PermissionError as e:
         logger.error(msg=f"Permissão negada: {caminho_path}")
-        raise ErroAcessoArquivo(
-            mensagem="Permissão negada", caminho=caminho_path, original=e
-        ) from e
+        raise ErroAcessoArquivo("Permissão negada", caminho_path, e) from e
     except FileNotFoundError as e:
-        logger.error(
-            msg=f"Erro inesperado ao processar {caminho_path}: {e}", exc_info=True
-        )
-        raise ErroAcessoArquivo(
-            mensagem="Erro inesperado", caminho=caminho_path, original=e
-        ) from e
+        logger.error(msg=f"Erro inesperado ao processar {caminho_path}: {e}", exc_info=True)
+        raise ErroAcessoArquivo("Erro inesperado", caminho_path, e) from e
 
 
 def converter_tamanho(tamanho_bytes: int | float, precisao: int = 2) -> str:
     """
-    Converte tamanho bruto em bytes para string legível com unidade.
-
-    Args:
-        tamanho_bytes: Valor em bytes.
-        precisao: Casas decimais de precisão.
-
-    Returns:
-        Tamanho formatado com unidade (ex: "1.23 MB").
+    Converte tamanho bruto (bytes) em string com unidade legível.
 
     Raises:
         ValueError: Para valores negativos ou tipos inválidos.
@@ -283,7 +213,7 @@ def converter_tamanho(tamanho_bytes: int | float, precisao: int = 2) -> str:
     if not isinstance(tamanho_bytes, (int, float)) or tamanho_bytes < 0:
         raise ValueError("Tamanho deve ser um número positivo")
 
-    unidades: list[str] = ["B", "KB", "MB", "GB", "TB", "PB"]
+    unidades = ["B", "KB", "MB", "GB", "TB", "PB"]
     idx = 0
     while tamanho_bytes >= 1024 and idx < len(unidades) - 1:
         tamanho_bytes /= 1024
