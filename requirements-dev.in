@@ -1,0 +1,10 @@
+# Desenvolvedores
+pytest
+pytest-cov
+mypy
+ruff
+isort
+black
+flake8
+bandit
+ipdb

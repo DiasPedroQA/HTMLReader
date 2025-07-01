@@ -16,14 +16,16 @@ def instalar_dependencias() -> None:
     Em caso de falha, exibe mensagem de erro e encerra o script.
     """
     try:
-        subprocess.check_call([
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "-r",
-            "requirements.txt",
-        ])
+        subprocess.check_call(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "requirements.txt",
+            ]
+        )
         print("📦 Dependências instaladas com sucesso.")
     except subprocess.CalledProcessError:
         print("❌ Falha ao instalar dependências.")

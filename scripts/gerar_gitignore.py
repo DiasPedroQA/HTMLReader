@@ -1,7 +1,8 @@
 # scripts/gerar_gitignore.py
 
-import requests
 from pathlib import Path
+
+import requests
 
 # Ambientes que queremos incluir
 TEMPLATES: list[str] = [

@@ -16,18 +16,18 @@ from datetime import datetime
 from pathlib import Path
 
 from core.utils.formatadores import (
-    ErroAcessoArquivo,
-    MetadadosArquivo,
-    Permissoes,
-    PermissoesDetalhadas,
-    Proprietario,
-    Tempos,
-    coletar_info_basica,
-    coletar_permissoes,
-    coletar_tempos,
+    # ErroAcessoArquivo,
+    # MetadadosArquivo,
+    # Permissoes,
+    # PermissoesDetalhadas,
+    # Proprietario,
+    # Tempos,
+    # coletar_info_basica,
+    # coletar_permissoes,
+    # coletar_tempos,
     converter_tamanho,
     gerar_dados_item,
-    validar_caminho,
+    # validar_caminho,
 )
 
 logger: logging.Logger = logging.getLogger(name=__name__)
@@ -88,7 +88,9 @@ class Arquivo:
             return self._cache_checksum
         except Exception as e:
             logger.error(msg=f"Erro ao calcular checksum: {e}")
-            raise RuntimeError(f"Falha ao ler arquivo para checksum: {self.nome}") from e
+            raise RuntimeError(
+                f"Falha ao ler arquivo para checksum: {self.nome}"
+            ) from e
 
     def ler(self, encoding: str = "utf-8", tamanho_max: int = 10_000_000) -> str:
         """
@@ -108,7 +110,9 @@ class Arquivo:
             self.caminho_arquivo = Path(self.caminho_arquivo)
             tamanho: int = self.caminho_arquivo.stat().st_size
             if tamanho > tamanho_max:
-                raise RuntimeError(f"Arquivo muito grande ({tamanho} bytes). Limite: {tamanho_max}")
+                raise RuntimeError(
+                    f"Arquivo muito grande ({tamanho} bytes). Limite: {tamanho_max}"
+                )
             return self.caminho_arquivo.read_text(encoding=encoding)
         except UnicodeDecodeError:
             logger.warning(msg=f"Falha ao decodificar {self.nome} como {encoding}")
@@ -152,7 +156,9 @@ class Arquivo:
     @property
     def tamanho_bytes(self) -> int:
         """Retorna o tamanho do arquivo em bytes."""
-        valor: str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int] = self.dados_arquivo.get("tamanho_bytes", 0)
+        valor: (
+            str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int]
+        ) = self.dados_arquivo.get("tamanho_bytes", 0)
         # Garante que só converte para int se for int, float ou str numérico
         if isinstance(valor, int):
             return valor
@@ -174,19 +180,45 @@ class Arquivo:
     @property
     def modificado_em(self) -> datetime:
         """Retorna a data e hora da última modificação do arquivo."""
-        valor: str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int] | None = self.dados_arquivo.get("data_modificacao")
-        return valor if isinstance(valor, datetime) else datetime.fromtimestamp(timestamp=0)
+        valor: (
+            str
+            | int
+            | datetime
+            | bool
+            | dict[str, dict[str, bool]]
+            | dict[str, int]
+            | None
+        ) = self.dados_arquivo.get("data_modificacao")
+        return (
+            valor
+            if isinstance(valor, datetime)
+            else datetime.fromtimestamp(timestamp=0)
+        )
 
     @property
     def criado_em(self) -> datetime:
         """Retorna a data e hora da criação do arquivo."""
-        valor: str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int] | None = self.dados_arquivo.get("data_criacao")
-        return valor if isinstance(valor, datetime) else datetime.fromtimestamp(timestamp=0)
+        valor: (
+            str
+            | int
+            | datetime
+            | bool
+            | dict[str, dict[str, bool]]
+            | dict[str, int]
+            | None
+        ) = self.dados_arquivo.get("data_criacao")
+        return (
+            valor
+            if isinstance(valor, datetime)
+            else datetime.fromtimestamp(timestamp=0)
+        )
 
     @property
     def eh_oculto(self) -> bool:
         """Indica se o arquivo é oculto (nome iniciado por ponto)."""
-        valor: str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int] = self.dados_arquivo.get("eh_oculto", False)
+        valor: (
+            str | int | datetime | bool | dict[str, dict[str, bool]] | dict[str, int]
+        ) = self.dados_arquivo.get("eh_oculto", False)
         return bool(valor)
 
     def __eq__(self, outro: object) -> bool:
@@ -229,7 +261,9 @@ def exemplo_uso_arquivo(caminho: str | Path) -> None:
 # Exemplo de uso
 if __name__ == "__main__":
     try:
-        arquivo_atual = Arquivo(caminho_arquivo=Path.home() / "Downloads/Firefox/bookmarks.html")
+        arquivo_atual = Arquivo(
+            caminho_arquivo=Path.home() / "Downloads/Firefox/bookmarks.html"
+        )
         arquivo_visual: str = arquivo_atual.to_json()
         print(f"\nDados do arquivo:\n{arquivo_visual}\n")
         conteudo: str | None = arquivo_atual.ler()

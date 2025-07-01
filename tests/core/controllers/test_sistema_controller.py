@@ -10,6 +10,7 @@ Abrange:
 from unittest.mock import patch
 
 import pytest
+
 from app.core.controllers.sistema_controller import SistemaController
 from app.core.models.sistema_info import SistemaInfo
 

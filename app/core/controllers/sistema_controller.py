@@ -6,10 +6,11 @@ Este controlador pode ser utilizado para exibir diagnósticos ou configurar
 comportamentos específicos conforme o ambiente em que a aplicação está rodando.
 """
 
-import platform
 import os
+import platform
 import sys
 from datetime import datetime
+
 import psutil
 
 from app.core.models.sistema_info import SistemaInfo

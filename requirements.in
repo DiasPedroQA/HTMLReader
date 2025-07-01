@@ -1,11 +1,11 @@
 fastapi
-pydantic
 httpx
 bandit
 coverage
-fastapi
 beautifulsoup4
 flake8
 pydantic
 pytest
 pytest-cov
+uvicorn
+psutil
