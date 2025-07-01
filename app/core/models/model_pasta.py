@@ -15,20 +15,20 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from core.models.model_arquivo import Arquivo
-from core.utils.formatadores import (
-    ErroAcessoArquivo,
-    MetadadosArquivo,
-    Permissoes,
-    PermissoesDetalhadas,
-    Proprietario,
-    Tempos,
-    coletar_info_basica,
-    coletar_permissoes,
-    coletar_tempos,
+from app.core.models.model_arquivo import Arquivo
+from app.core.utils.formatadores import (
+    # ErroAcessoArquivo,
+    # MetadadosArquivo,
+    # Permissoes,
+    # PermissoesDetalhadas,
+    # Proprietario,
+    # Tempos,
+    # coletar_info_basica,
+    # coletar_permissoes,
+    # coletar_tempos,
     converter_tamanho,
     gerar_dados_item,
-    validar_caminho,
+    # validar_caminho,
 )
 
 logger: logging.Logger = logging.getLogger(name=__name__)
@@ -53,7 +53,9 @@ class Pasta:
         try:
             self.caminho = Path(self.caminho)
             if not self.caminho.is_dir():
-                raise NotADirectoryError(f"Caminho não é uma pasta válida: {self.caminho}")
+                raise NotADirectoryError(
+                    f"Caminho não é uma pasta válida: {self.caminho}"
+                )
             self._carregar_metadados()
         except Exception as e:
             logger.error(msg=f"Falha ao inicializar Pasta: {e}")
