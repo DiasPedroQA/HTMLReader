@@ -8,7 +8,7 @@
 
 # import pytest
 
-# from src.core.controllers.pastas_controller import PastasController
+# from app.core.controllers.pastas_controller import PastasController
 
 
 # @pytest.fixture

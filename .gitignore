@@ -1,12 +1,14 @@
 # ========================
-# Python: arquivos internos
+# 🐍 Arquivos Python
 # ========================
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 
 # ========================
-# Ambientes virtuais
+# ⚙️ Ambientes virtuais
 # ========================
 .venv/
 env/
@@ -15,7 +17,7 @@ env.bak/
 venv.bak/
 
 # ========================
-# Arquivos de build / distribuição
+# 📦 Arquivos de build e distribuição
 # ========================
 build/
 dist/
@@ -25,17 +27,7 @@ dist/
 MANIFEST
 
 # ========================
-# Logs e arquivos temporários
-# ========================
-*.log
-*.tmp
-*.bak
-*.swp
-*.swo
-*.DS_Store
-
-# ========================
-# Cache e relatórios de ferramentas
+# 🧪 Arquivos de teste, cache e cobertura
 # ========================
 .cache/
 .mypy_cache/
@@ -52,7 +44,17 @@ htmlcov/
 .pytype/
 
 # ========================
-# IDEs e editores
+# 📝 Logs e temporários
+# ========================
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+.logs_makefile/
+
+# ========================
+# 🧠 IDEs e editores
 # ========================
 .vscode/
 .idea/
@@ -61,13 +63,13 @@ htmlcov/
 .ropeproject
 
 # ========================
-# Notebooks
+# 📓 Notebooks
 # ========================
 *.ipynb
 .ipynb_checkpoints/
 
 # ========================
-# Bancos de dados locais e configurações específicas
+# 🗃️ Arquivos locais e bancos de dados
 # ========================
 *.sqlite3
 *.sqlite3-journal
@@ -76,32 +78,32 @@ webassets-cache/
 local_settings.py
 
 # ========================
-# Scripts e arquivos locais auxiliares
+# 📜 Scripts e arquivos auxiliares
 # ========================
 refatorar_estrutura.sh
 
 # ========================
-# Poetry / Pipenv / PDM (caso existam)
+# 📦 Gerenciadores de dependência (não usados)
 # ========================
-# (O poetry.lock deve ser versionado, mas outros arquivos relacionados a outros gerenciadores podem ser ignorados)
 Pipfile.lock
 pdm.lock
 .pdm.toml
 __pypackages__/
 
 # ========================
-# PyInstaller
+# 🧊 PyInstaller
 # ========================
 *.spec
 *.manifest
 
 # ========================
-# Outros
+# 🔁 Outros
 # ========================
 celerybeat-schedule
 celerybeat.pid
-.logs_makefile/
 
-.ipynb
-teste_valido.txt
+# ========================
+# ❌ Arquivos e testes locais não versionados
+# ========================
 Z_teste.ipynb
+teste_valido.txt

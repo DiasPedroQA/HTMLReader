@@ -1,85 +1,108 @@
-.PHONY: help venv install compile lint format test coverage coverage-html run-cli run-gui run-api clean all pre setup post
+.PHONY: help venv install compile lint format test coverage coverage-html tdd run-cli run-gui run-api clean all pre setup post
 
-VENV = .venv/bin
+PYTHON := python3
+VENV := .venv/bin
+SRC := app
+TESTS := tests
 
+# ====================================
+# AJUDA
+# ====================================
 help:
 	@echo "Comandos disponíveis:"
-	@echo "  make venv          - Cria ambiente virtual .venv"
-	@echo "  make install       - Instala dependências (produção e dev)"
-	@echo "  make compile       - Gera requirements.txt via pip-tools"
-	@echo "  make lint          - Roda pylint e flake8"
-	@echo "  make format        - Roda black e isort"
-	@echo "  make test          - Executa testes com pytest"
-	@echo "  make coverage      - Mostra cobertura de testes no terminal"
-	@echo "  make coverage-html - Gera cobertura de testes em HTML"
-	@echo "  make run-cli       - Executa a interface de linha de comando"
-	@echo "  make run-gui       - Executa a interface gráfica"
-	@echo "  make run-api       - Executa a API FastAPI"
-	@echo "  make clean         - Remove arquivos temporários"
-	@echo "  make all           - Executa pipeline completa"
-	@echo "  make pre           - Executa pré-configuração (scripts/pre_setup.py)"
-	@echo "  make setup         - Executa configuração principal (scripts/setup.py)"
-	@echo "  make post          - Executa pós-configuração (scripts/post_setup.py)"
+	@echo "  make venv             - Cria ambiente virtual .venv"
+	@echo "  make install          - Instala dependências (produção e dev)"
+	@echo "  make compile          - Gera requirements.txt via pip-tools"
+	@echo "  make lint             - Executa linters (ruff, mypy, isort)"
+	@echo "  make format           - Aplica formatação (black, isort)"
+	@echo "  make test             - Executa testes com pytest"
+	@echo "  make coverage         - Mostra cobertura no terminal e gera XML"
+	@echo "  make coverage-html    - Gera cobertura de testes em HTML"
+	@echo "  make tdd              - Executa lint, testes e cobertura (modo TDD)"
+	@echo "  make run-cli          - Executa interface de linha de comando"
+	@echo "  make run-gui          - Executa interface gráfica (Tkinter)"
+	@echo "  make run-api          - Executa API FastAPI"
+	@echo "  make clean            - Remove arquivos temporários"
+	@echo "  make all              - Executa pipeline completa"
+	@echo "  make pre/setup/post   - Executa scripts de configuração modular"
 
+# ====================================
+# AMBIENTE VIRTUAL E DEPENDÊNCIAS
+# ====================================
 venv:
-	python3 -m venv .venv
+	$(PYTHON) -m venv .venv
 
 install: venv
 	$(VENV)/pip install --upgrade pip
-	@if [ -f requirements.txt ]; then \
-		$(VENV)/pip install -r requirements.txt; \
-	fi
-	@if [ -f requirements-dev.txt ]; then \
-		$(VENV)/pip install -r requirements-dev.txt; \
-	fi
+	@if [ -f requirements.txt ]; then $(VENV)/pip install -r requirements.txt; fi
+	@if [ -f requirements-dev.txt ]; then $(VENV)/pip install -r requirements-dev.txt; fi
 
 compile:
 	$(VENV)/pip-compile requirements.in -o requirements.txt
 
+# ====================================
+# LINT E FORMATAÇÃO
+# ====================================
 lint:
-	$(VENV)/pylint src/ tests || true
-	$(VENV)/flake8 src/ tests || true
+	$(VENV)/ruff . --output-format=github
+	$(VENV)/mypy $(SRC)
+	$(VENV)/isort . --check-only --profile black
 
 format:
-	$(VENV)/black src/ tests/
-	$(VENV)/isort src/ tests/
+	$(VENV)/black .
+	$(VENV)/isort . --profile black
 
+# ====================================
+# TESTES E COBERTURA
+# ====================================
 test:
-	PYTHONPATH=src $(VENV)/pytest tests --maxfail=1 --disable-warnings -v
+	PYTHONPATH=$(SRC) $(VENV)/pytest $(TESTS) --maxfail=1 --disable-warnings -v
 
 coverage:
-	PYTHONPATH=src $(VENV)/pytest --cov=src tests --cov-report=term-missing
+	PYTHONPATH=$(SRC) $(VENV)/pytest --cov=$(SRC) $(TESTS) --cov-report=term-missing --cov-report=xml
 
 coverage-html:
-	PYTHONPATH=src $(VENV)/pytest --cov=src tests --cov-report=html
+	PYTHONPATH=$(SRC) $(VENV)/pytest --cov=$(SRC) $(TESTS) --cov-report=html
 
+tdd: lint test coverage
+
+# ====================================
+# EXECUÇÃO DAS INTERFACES
+# ====================================
 run-cli:
-	PYTHONPATH=src $(VENV)/python src/interfaces/cli/main_cli.py
+	PYTHONPATH=$(SRC) $(VENV)/python $(SRC)/interfaces/cli/main_cli.py
 
 run-gui:
-	PYTHONPATH=src $(VENV)/python src/interfaces/gui/main_gui.py
+	PYTHONPATH=$(SRC) $(VENV)/python $(SRC)/interfaces/gui/main_gui.py
 
 run-api:
-	PYTHONPATH=src $(VENV)/python src/interfaces/api/main_api.py
+	PYTHONPATH=$(SRC) $(VENV)/python $(SRC)/interfaces/api/main_api.py
 
+# ====================================
+# LIMPEZA
+# ====================================
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	rm -rf .pytest_cache .mypy_cache .coverage htmlcov __pycache__ */__pycache__
+	rm -rf .pytest_cache .mypy_cache .coverage htmlcov coverage.xml __pycache__ */__pycache__
 
-# Pipeline completa: executa todas as etapas principais
-all: clean venv install lint format test coverage-html
+# ====================================
+# PIPELINE COMPLETA
+# ====================================
+all: clean venv install format lint test coverage-html
 	@echo "✅ Pipeline completa executada com sucesso!"
 
-# Scripts de configuração (pré, setup, pós)
+# ====================================
+# SCRIPTS DE CONFIGURAÇÃO MODULAR
+# ====================================
 pre:
 	@echo "🔧 Executando pré-configuração..."
-	@python3 scripts/pre_setup.py
+	@$(PYTHON) scripts/pre_setup.py
 
 setup: pre
 	@echo "⚙️  Executando configuração principal..."
-	@python3 scripts/setup.py
+	@$(PYTHON) scripts/setup.py
 
 post: setup
 	@echo "✅ Executando pós-configuração..."
-	@python3 scripts/post_setup.py
+	@$(PYTHON) scripts/post_setup.py

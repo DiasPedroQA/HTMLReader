@@ -1,84 +1,66 @@
-# # pylint: disable=W0212, W0621
+"""
+Testes unitários para o controlador SistemaController, responsável por obter
+informações do sistema operacional atual.
 
-# """
-# Testes para o módulo ControladorSistema,
-# que gerencia a detecção do sistema operacional
-# e acesso aos diretórios do usuário,
-# com abstrações para arquivos e pastas.
-# """
+Abrange:
+- Teste real com sistema operacional local
+- Testes simulados para Linux, Windows e macOS (via mock)
+"""
 
-# from pathlib import Path
+from unittest.mock import patch
 
-# import pytest
-
-# from core.controllers.sistema_controller import ControladorSistema
-# from core.models.model_arquivo import Arquivo
-# from core.models.model_caminho_base import CaminhoBase
-# from core.models.model_pasta import Pasta
-# from core.utils.sistema_operacional import SistemaOperacional
+import pytest
+from app.core.controllers.sistema_controller import SistemaController
+from app.core.models.sistema_info import SistemaInfo
 
 
-# @pytest.fixture
-# def controlador_sistema() -> ControladorSistema:
-#     """Cria e retorna uma instância do controlador do sistema para os testes."""
-#     return ControladorSistema()
+def test_controller_retorna_modelo_valido() -> None:
+    """
+    Testa se o SistemaController retorna um objeto SistemaInfo válido
+    com informações coerentes no ambiente operacional atual.
+    """
+    controller = SistemaController(versao_api="1.0.1")
+    info: SistemaInfo = controller.obter_info()
+
+    assert info.sistema_operacional in ["Linux", "Windows", "Darwin"]
+    assert isinstance(info.diretorio_atual, str)
+    assert info.separador_diretorio in ["/", "\\"]
+    assert info.versao_api == "1.0.1"
+    assert isinstance(info.tempo_desde_boot, str)
+    assert isinstance(info.codificacao_padrao, str)
 
 
-# class TestControladorSistema:
-#     """Testa as funcionalidades da classe ControladorSistema."""
+@pytest.mark.parametrize(
+    argnames="sistema, versao, arquitetura, nome_maquina, separador",
+    argvalues=[
+        ("Windows", "10.0.22621", "AMD64", "WIN-PC", "\\"),
+        ("Linux", "5.15.0", "x86_64", "linux-machine", "/"),
+        ("Darwin", "23.4.0", "arm64", "macbook-pro", "/"),
+    ],
+)
+def test_controller_simulacoes_multiplas(
+    sistema: str,
+    versao: str,
+    arquitetura: str,
+    nome_maquina: str,
+    separador: str,
+) -> None:
+    """
+    Testa o comportamento do SistemaController simulando diferentes sistemas operacionais
+    (Windows, Linux e macOS), usando mocks para simular o ambiente de execução.
+    """
+    with (
+        patch("platform.system", return_value=sistema),
+        patch("platform.version", return_value=versao),
+        patch("platform.machine", return_value=arquitetura),
+        patch("platform.node", return_value=nome_maquina),
+        patch("os.sep", separador),
+    ):
+        controller = SistemaController(versao_api="1.0.1")
+        info: SistemaInfo = controller.obter_info()
 
-#     def test_inicializacao_default(
-#         self, controlador_sistema: ControladorSistema
-#     ) -> None:
-#         """
-#         Deve inicializar com o sistema detectado automaticamente
-#         e retornar informações básicas corretas.
-#         """
-#         info: dict[str, str | Path] = controlador_sistema.info_sistema
-#         assert isinstance(info, dict)
-#         assert "sistema" in info
-#         assert isinstance(info["sistema"], SistemaOperacional)
-#         assert "user_root" in info
-#         assert isinstance(info["user_root"], Path)
-
-#     def test_obter_raiz_usuario_logado_property_consistencia(
-#         self, controlador_sistema: ControladorSistema
-#     ) -> None:
-#         """
-#         Deve retornar sempre o mesmo Path para o diretório raiz do usuário
-#         utilizando a propriedade pública.
-#         """
-#         p1: Path = controlador_sistema.obter_raiz_usuario_logado
-#         p2: Path = controlador_sistema.obter_raiz_usuario_logado
-#         assert p1 == p2
-#         assert isinstance(p1, Path)
-
-#     def test_listar_itens_usuario_logado(
-#         self,
-#         tmp_path: Path,
-#         controlador_sistema: ControladorSistema,
-#         monkeypatch: pytest.MonkeyPatch,
-#     ) -> None:
-#         """
-#         Deve listar instâncias de Arquivo e Pasta no diretório do usuário simulado.
-#         """
-#         (tmp_path / "arquivo.txt").write_text(data="conteudo")
-#         (tmp_path / "pasta").mkdir()
-
-#         # Força a raiz do usuário para tmp_path usando monkeypatch
-#         monkeypatch.setattr(
-#             target=controlador_sistema, name="obter_raiz_usuario_logado", value=tmp_path
-#         )
-
-#         itens: list[Pasta] = controlador_sistema.listar_itens_usuario_logado()
-#         # itens: list[CaminhoBase] = controlador_sistema.listar_itens_usuario_logado()
-#         nomes: list[str] = [item.nome_caminho for item in itens]
-
-#         assert "arquivo.txt" in nomes
-#         assert "pasta" in nomes
-
-#         # Verifica que os tipos das instâncias são corretos
-#         tipos: set[type[CaminhoBase]] = {type(item) for item in itens}
-#         assert Arquivo in tipos
-#         assert Pasta in tipos
-#         assert all(isinstance(item, (Arquivo, Pasta)) for item in itens)
+        assert info.sistema_operacional == sistema
+        assert info.arquitetura == arquitetura
+        assert info.nome_maquina == nome_maquina
+        assert info.separador_diretorio == separador
+        assert info.versao_api == "1.0.1"

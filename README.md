@@ -1,26 +1,31 @@
 # HTMLReader
 
-![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![Build](https://github.com/DiasPedroQA/htmlreader/actions/workflows/tdd.yml/badge.svg)](https://github.com/DiasPedroQA/htmlreader/actions/workflows/tdd.yml)
+[![Coverage](https://codecov.io/gh/DiasPedroQA/htmlreader/branch/main/graph/badge.svg)](https://codecov.io/gh/DiasPedroQA/htmlreader)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![Platform](https://img.shields.io/badge/platform-linux--windows--macos-lightgrey)
 
-O **HTMLReader** é uma aplicação modular para leitura, análise e processamento de arquivos HTML e texto (como `.txt`, `.md`, etc.). Ele oferece suporte a três formas de interação:
+![Docker Ready](https://img.shields.io/badge/docker-ready-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange)
+
+**HTMLReader** é uma aplicação modular para leitura, análise e processamento de arquivos HTML e texto (como `.txt`, `.md`, etc.). Ele oferece suporte a três formas de interação:
 
 - Interface Gráfica (GUI) com **Tkinter**
 - Interface de Linha de Comando (CLI)
 - Interface de API REST com **FastAPI**
 
-O projeto foi pensado para ser didático, extensível e fácil de manter — ideal para aprendizado e aplicações reais.
+O projeto é didático, extensível e fácil de manter — ideal para aprendizado e aplicações reais.
 
 ---
 
 ## 🧱 Estrutura do Projeto
 
-A organização do HTMLReader segue boas práticas de arquitetura em camadas e separação de responsabilidades:
+A arquitetura segue boas práticas de camadas e separação de responsabilidades:
 
-```plain
-
+```text
 HTMLReader/
-├── src/
+├── app/
 │   ├── core/               # Lógica central da aplicação
 │   │   ├── models/         # Schemas Pydantic e modelos de dados
 │   │   └── services/       # Regras de negócio, análise e utilitários
@@ -28,13 +33,12 @@ HTMLReader/
 │       ├── api/            # API REST com FastAPI
 │       ├── cli/            # Interface de linha de comando
 │       └── gui/            # Interface gráfica (Tkinter)
-├── tests/                  # Testes automatizados com pytest
+├── tests/                  # Testes automatizados com Pytest
 ├── Makefile                # Tarefas automatizadas
 ├── pyproject.toml          # Configurações de build, lint e testes
-├── requirements.txt        # Dependências de produção (pip-tools/Poetry)
+├── requirements.txt        # Dependências do projeto
 └── README.md               # Documentação do projeto
-
-```
+````
 
 ---
 
@@ -42,79 +46,68 @@ HTMLReader/
 
 ### GUI (Interface Gráfica)
 
-Abra a interface gráfica com:
-
 ```bash
 make run
-````
-
-Ou diretamente:
-
-```bash
-python -m src.interfaces.gui.main_gui
+# ou
+python -m app.interfaces.gui.main_gui
 ```
 
 ---
 
 ### CLI (Linha de Comando)
 
-Use os comandos disponíveis para executar operações diretamente via terminal:
-
 ```bash
-python -m src.interfaces.cli.main_cli visor <CAMINHO>
-python -m src.interfaces.cli.main_cli processar <ARQUIVOS>
+python -m app.interfaces.cli.main_cli visor <CAMINHO>
+python -m app.interfaces.cli.main_cli processar <ARQUIVOS>
 ```
 
 ---
 
 ### API REST (FastAPI)
 
-Inicie o servidor com:
-
 ```bash
-uvicorn src.interfaces.api.main_api:app --reload
+uvicorn app.interfaces.api.main_api:app --reload
 ```
 
-Acesse a documentação automática em:
-
-[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+Acesse: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
 ## ✅ Executando os Testes
 
-Via Makefile:
-
 ```bash
 make test
-```
-
-Ou diretamente com Pytest:
-
-```bash
+# ou
 pytest tests
 ```
 
 ---
 
-## 🧪 Recomendações para Desenvolvimento
+## 🧪 Boas Práticas para Desenvolvimento
 
-- Use ambientes virtuais: `python -m venv .venv && source .venv/bin/activate`
-- Execute `make install` para instalar dependências.
-- Utilize `make lint` e `make format` para manter o código limpo.
-- Consulte os testes automatizados como exemplos de uso.
-- Leia o `docstring` e *type hints* para compreender os modelos e fluxos.
+```bash
+python -m venv .venv && source .venv/bin/activate
+```
+
+```bash
+make install
+```
+
+```bash
+make lint
+make format
+```
 
 ---
 
 ## 🤝 Contribuindo
 
-Pull requests são bem-vindos! Para contribuir:
+Pull requests são bem-vindos!
 
-- Faça um fork do repositório
-- Crie uma branch para sua feature ou correção
-- Confirme se os testes passam com `make test`
-- Envie um *pull request* com uma descrição clara
+1. Faça um fork do repositório
+2. Crie uma branch (`git checkout -b feature/nome`)
+3. Execute `make test` e confirme que tudo está funcionando
+4. Envie um pull request com descrição clara e objetiva
 
 ---
 
@@ -125,3 +118,24 @@ Este projeto está licenciado sob os termos da licença [MIT](LICENSE).
 ---
 
 > Projeto desenvolvido com foco didático e modular por [Pedro PM Dias](https://github.com/DiasPedroQA/HTMLReader).
+
+## ✅ Estrutura sugerida para os badges
+
+```markdown
+# HTMLReader
+
+<!-- Status Geral -->
+[![Build](https://github.com/DiasPedroQA/htmlreader/actions/workflows/tdd.yml/badge.svg)](https://github.com/DiasPedroQA/htmlreader/actions/workflows/tdd.yml)
+[![Coverage](https://codecov.io/gh/DiasPedroQA/htmlreader/branch/main/graph/badge.svg)](https://codecov.io/gh/DiasPedroQA/htmlreader)
+
+<!-- Ambiente e Plataforma -->
+![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+![Platform](https://img.shields.io/badge/platform-linux--windows--macos-lightgrey)
+![Docker Ready](https://img.shields.io/badge/docker-ready-blue)
+
+<!-- Manutenção e Licença -->
+![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange)
+```
+
+---
