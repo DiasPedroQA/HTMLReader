@@ -73,6 +73,7 @@
         "pydantic",
         "pypackages",
         "pyproject",
+        "pythonpath",
         "PYTHONPATH",
         "pytype",
         "relatorio",

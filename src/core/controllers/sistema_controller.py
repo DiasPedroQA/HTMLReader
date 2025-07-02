@@ -13,7 +13,7 @@ from datetime import datetime
 
 import psutil
 
-from core.models.sistema_info import SistemaInfo
+from src.core.models.sistema_info import SistemaInfo
 
 
 class SistemaController:
