@@ -18,91 +18,15 @@ import stat
 from datetime import datetime
 from os import stat_result
 from pathlib import Path
-from typing import Literal, TypedDict
+
+from core.models.sistema_info import (
+    ErroAcessoArquivo,
+    MetadadosArquivo,
+    PermissoesDetalhadas,
+    Tempos,
+)
 
 logger: logging.Logger = logging.getLogger(name=__name__)
-
-# -------------------------------------
-# Tipos nomeados para metadados
-# -------------------------------------
-
-
-class Permissoes(TypedDict):
-    """Permissões básicas de leitura, escrita e execução para uma categoria de usuário."""
-
-    ler: bool
-    escrever: bool
-    executar: bool
-
-
-class PermissoesDetalhadas(TypedDict):
-    """Permissões divididas por tipo de usuário: usuário, grupo e outros."""
-
-    usuario: Permissoes
-    grupo: Permissoes
-    outros: Permissoes
-
-
-class Proprietario(TypedDict):
-    """Identificadores de propriedade do sistema: UID e GID."""
-
-    uid: int
-    gid: int
-
-
-class Tempos(TypedDict):
-    """Datas relevantes de um item: criação, modificação e último acesso."""
-
-    data_criacao: datetime
-    data_modificacao: datetime
-    data_acesso: datetime
-
-
-class MetadadosArquivo(TypedDict, total=False):
-    """Estrutura completa de metadados extraídos de um arquivo ou diretório."""
-
-    nome: str
-    caminho_absoluto: str
-    caminho_pai: str
-    tamanho_bytes: int
-    eh_oculto: bool
-    dispositivo: int
-    proprietario: Proprietario
-    tipo: Literal["arquivo", "pasta"]
-    extensao: str
-    extensao_legivel: str
-    permissoes: PermissoesDetalhadas
-    data_criacao: datetime
-    data_modificacao: datetime
-    data_acesso: datetime
-
-
-# -------------------------------------
-# Exceção personalizada
-# -------------------------------------
-
-
-class ErroAcessoArquivo(Exception):
-    """Exceção para falhas ao acessar um caminho no sistema de arquivos."""
-
-    def __init__(
-        self,
-        mensagem: str,
-        caminho: str | Path | None = None,
-        original: Exception | None = None,
-    ) -> None:
-        self.caminho = str(caminho) if caminho else None
-        self.mensagem = mensagem
-        self.original = original
-        super().__init__(self.__str__())
-
-    def __str__(self) -> str:
-        msg = f"ErroAcessoArquivo: {self.mensagem}"
-        if self.caminho:
-            msg += f" | Caminho: {self.caminho}"
-        if self.original:
-            msg += f" | Original: {self.original}"
-        return msg
 
 
 # -------------------------------------
@@ -116,15 +40,25 @@ def validar_caminho(caminho: str | Path) -> Path:
 
     Raises:
         TypeError: Se o tipo for inválido.
-        ErroAcessoArquivo: Se o caminho não puder ser acessado.
+        ErroAcessoArquivo: Se o caminho não existir ou não puder ser acessado.
     """
     if not isinstance(caminho, (str, Path)):
         raise TypeError(f"Tipo inválido para caminho: {type(caminho)}")
+
     path = Path(caminho)
+
+    # Verifica se o caminho existe, caso contrário lança erro
+    if not path.exists():
+        raise ErroAcessoArquivo("Caminho não existe", caminho)
+
     try:
-        _ = path.exists()
+        # Tenta acessar propriedades básicas para validar acesso
+        _ = path.stat()
+    except PermissionError as e:
+        raise ErroAcessoArquivo("Permissão negada", caminho, e) from e
     except Exception as e:
         raise ErroAcessoArquivo("Erro ao acessar caminho", caminho, e) from e
+
     return path
 
 

@@ -30,10 +30,7 @@ def get_sistema_controller() -> SistemaController:
     name="obter_informacoes_sistema",
     response_model=SistemaInfo,
     summary="Obter informações do sistema operacional",
-    description=(
-        "Retorna dados detalhados do sistema operacional atual, "
-        "como versão, arquitetura, diretórios e tempo desde o último boot."
-    ),
+    description=("Retorna dados detalhados do sistema operacional atual, " "como versão, arquitetura, diretórios e tempo desde o último boot."),
 )
 def obter_informacoes_sistema(
     controller: SistemaController = Depends(dependency=get_sistema_controller),

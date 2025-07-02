@@ -141,18 +141,3 @@ jobs:
         run: |
           ISSUE_TITLE="🔴 Falha na pipeline: $WORKFLOW"
           read -r -d '' ISSUE_BODY << EOF || true
-
-
-# 🚨 Uma falha foi detectada na execução da pipeline **$WORKFLOW**.
-
-# - Branch: $BRANCH
-# - Actor: $ACTOR
-# - [Ver detalhes do run no GitHub](https://github.com/$REPO/actions/runs/$RUN_ID)
-
-# Por favor, verifique os logs para identificar e corrigir o problema.
-# EOF
-
-#           curl -sSL -H "Authorization: token $GH_TOKEN_ISSUES" \
-#             -H "Accept: application/vnd.github+json" \
-#             https://api.github.com/repos/$REPO/issues \
-#             -d "$(jq -n --arg title "$ISSUE_TITLE" --arg body "$ISSUE_BODY" '{title: $title, body: $body, labels: ["bug", "ci"]}')"

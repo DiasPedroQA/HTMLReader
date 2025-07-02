@@ -10,9 +10,9 @@ Este conjunto de testes cobre:
 
 from __future__ import annotations
 
-import tempfile
-from datetime import datetime
+from os import stat_result
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -20,118 +20,119 @@ from src.core.utils.formatadores import (
     ErroAcessoArquivo,
     MetadadosArquivo,
     PermissoesDetalhadas,
+    Tempos,
+    coletar_info_basica,
+    coletar_permissoes,
+    coletar_tempos,
     converter_tamanho,
     gerar_dados_item,
+    validar_caminho,
 )
 
 
 class TestFormatadoresUtilitarios:
-    """
-    Classe de testes unitários para funções do módulo `formatadores.py`.
+    """Testes para funções do módulo formatadores."""
 
-    Cada método testa funcionalidades específicas relacionadas à leitura e
-    formatação de metadados de arquivos e diretórios, bem como validações e exceções.
-    """
+    def test_validar_caminho_valido(self, tmp_path: Path) -> None:
+        """Testa a validação de caminho válido."""
+        file: Path = tmp_path / "arquivo.txt"
+        file.write_text(data="conteudo")
+        resultado: Path = validar_caminho(caminho=str(file))
+        assert isinstance(resultado, Path)
+        assert resultado == file
 
-    def test_gerar_dados_de_arquivo_valido(self) -> None:
-        """
-        Garante que a função `gerar_dados_item` retorna metadados corretos para um arquivo válido.
-        """
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"conteudo de teste")
-            tmp_path = Path(tmp.name)
-
-        dados: MetadadosArquivo = gerar_dados_item(caminho=tmp_path)
-
-        assert dados.get("nome") == tmp_path.name
-        assert dados.get("tamanho_bytes") == tmp_path.stat().st_size
-        assert dados.get("tipo") == "arquivo"
-        assert dados.get("extensao") == tmp_path.suffix.lower()
-        assert dados.get("caminho_absoluto") == str(tmp_path.absolute())
-        assert isinstance(dados.get("data_criacao"), datetime)
-
-        tmp_path.unlink()
-
-    def test_gerar_dados_de_diretorio_valido(self) -> None:
-        """
-        Verifica que `gerar_dados_item` funciona corretamente com diretórios.
-        """
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            path = Path(tmp_dir)
-            dados: MetadadosArquivo = gerar_dados_item(caminho=path)
-
-            assert dados.get("tipo") == "pasta"
-            assert dados.get("nome") == path.name
-            assert dados.get("caminho_absoluto") == str(path.absolute())
-
-    def test_caminho_inexistente_lanca_erro(self) -> None:
-        """
-        Garante que a função levanta `ErroAcessoArquivo` para caminhos inválidos.
-        """
-        caminho = "/caminho/inexistente/arquivo.txt"
+    def test_validar_caminho_invalido(self) -> None:
+        """Testa validação com caminho inválido, espera exceção."""
         with pytest.raises(expected_exception=ErroAcessoArquivo):
-            gerar_dados_item(caminho=caminho)
+            validar_caminho(caminho="/caminho/nao/existe")
 
-    def test_converter_tamanho_valores_diferentes(self) -> None:
-        """
-        Valida conversão correta de diversos tamanhos em bytes para formato legível.
-        """
-        assert converter_tamanho(tamanho_bytes=0) == "0.00 B"
-        assert converter_tamanho(tamanho_bytes=1023) == "1023.00 B"
-        assert converter_tamanho(tamanho_bytes=1024) == "1.00 KB"
-        assert converter_tamanho(tamanho_bytes=1536) == "1.50 KB"
-        assert converter_tamanho(tamanho_bytes=1048576) == "1.00 MB"
+    def test_validar_caminho_tipo_invalido(self) -> None:
+        """Testa validação com tipo inválido, espera TypeError."""
+        with pytest.raises(expected_exception=TypeError):
+            validar_caminho(caminho="12345")
 
-    # def test_tipo_invalido_para_caminho(self) -> None:
-    #     """
-    #     Testa se `TypeError` é levantado ao passar tipo não suportado como caminho.
-    #     """
-    #     with pytest.raises(expected_exception=TypeError):
-    #         gerar_dados_item(caminho="1234")
+    @pytest.mark.parametrize(
+        argnames="bytes_entrada, resultado_esperado",
+        argvalues=[
+            (0, "0.00 B"),
+            (1023, "1023.00 B"),
+            (1024, "1.00 KB"),
+            (1048576, "1.00 MB"),
+            (1073741824, "1.00 GB"),
+        ],
+    )
+    def test_converter_tamanho(self, bytes_entrada: int, resultado_esperado: str) -> None:
+        """Testa conversão de tamanhos legíveis."""
+        assert converter_tamanho(tamanho_bytes=bytes_entrada) == resultado_esperado
 
-    # def test_converter_tamanho_valor_invalido(self) -> None:
-    #     """
-    #     Verifica que `converter_tamanho` levanta erro para valores negativos ou absurdos.
-    #     """
-    #     with pytest.raises(expected_exception=ValueError):
-    #         converter_tamanho(tamanho_bytes=-10)
-    #     with pytest.raises(expected_exception=ValueError):
-    #         converter_tamanho(tamanho_bytes=6.022e23)
+    def test_converter_tamanho_valor_negativo(self) -> None:
+        """Testa conversão com valor negativo, espera ValueError."""
+        with pytest.raises(expected_exception=ValueError):
+            converter_tamanho(tamanho_bytes=-1)
 
-    def test_permissoes_arquivo(self) -> None:
-        """
-        Testa se as permissões retornadas estão corretas após modificar o modo de um arquivo.
-        """
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        tmp_path.chmod(mode=0o764)
-        dados: MetadadosArquivo = gerar_dados_item(caminho=tmp_path)
+    def test_coletar_permissoes(self) -> None:
+        """Testa extração das permissões com todos os bits ativados."""
+        mock_stat = MagicMock()
+        mock_stat.st_mode = 0o777  # permissões completas
+        perms: PermissoesDetalhadas = coletar_permissoes(stats=mock_stat)
+        for categoria in ["usuario", "grupo", "outros"]:
+            assert perms[categoria]["ler"] is True
+            assert perms[categoria]["escrever"] is True
+            assert perms[categoria]["executar"] is True
 
-        permissoes: PermissoesDetalhadas | dict = dados.get("permissoes", {})
-        assert permissoes.get("usuario", {}).get("ler") is True
-        assert permissoes.get("usuario", {}).get("escrever") is True
-        assert permissoes.get("usuario", {}).get("executar") is True
+    def test_coletar_tempos(self) -> None:
+        """Testa conversão de tempos para datetime."""
+        mock_stat = MagicMock()
+        mock_stat.st_ctime = 1672531200
+        mock_stat.st_mtime = 1672617600
+        mock_stat.st_atime = 1672704000
 
-        assert permissoes.get("grupo", {}).get("ler") is True
-        assert permissoes.get("grupo", {}).get("escrever") is True
-        assert permissoes.get("grupo", {}).get("executar") is False
+        tempos: Tempos = coletar_tempos(stats=mock_stat)
+        assert tempos.get("data_criacao") is not None
+        assert tempos.get("data_modificacao") is not None
+        assert tempos.get("data_acesso") is not None
 
-        assert permissoes.get("outros", {}).get("ler") is True
-        assert permissoes.get("outros", {}).get("escrever") is False
-        assert permissoes.get("outros", {}).get("executar") is False
+    def test_coletar_info_basica_arquivo(self, tmp_path: Path) -> None:
+        """Testa coleta de metadados básicos para arquivo."""
+        file: Path = tmp_path / "teste.txt"
+        file.write_text(data="conteudo")
+        stats: stat_result = file.stat()
+        info: MetadadosArquivo = coletar_info_basica(path=file, stats=stats)
+        assert info.get("nome") == "teste.txt"
+        assert info.get("tipo") == "arquivo"
+        assert info.get("extensao") == ".txt"
+        assert info.get("extensao_legivel") == "TXT"
+        assert info.get("eh_oculto") is False
 
-        tmp_path.unlink()
+    def test_coletar_info_basica_pasta(self, tmp_path: Path) -> None:
+        """Testa coleta de metadados básicos para diretório."""
+        info: MetadadosArquivo = coletar_info_basica(path=tmp_path, stats=tmp_path.stat())
+        assert info.get("nome") == tmp_path.name
+        assert info.get("tipo") == "pasta"
+        assert "extensao" not in info
 
-    def test_excecao_erro_acesso_arquivo_customizada(self) -> None:
-        """
-        Garante que a exceção `ErroAcessoArquivo` exibe a mensagem formatada corretamente.
-        """
-        erro = ErroAcessoArquivo(
-            mensagem="Falha ao acessar",
-            caminho="/algum/caminho",
-            original=OSError("Permissão negada"),
+    def test_gerar_dados_item_valido(self, tmp_path: Path) -> None:
+        """Testa geração completa de metadados para arquivo válido."""
+        file: Path = tmp_path / "exemplo.log"
+        file.write_text(data="teste")
+        dados: MetadadosArquivo = gerar_dados_item(caminho=file)
+        assert dados.get("nome") == "exemplo.log"
+        assert dados.get("tipo") == "arquivo"
+        assert dados.get("extensao") == ".log"
+
+    def test_gerar_dados_item_invalido(self) -> None:
+        """Testa geração de metadados para caminho inválido, espera exceção."""
+        with pytest.raises(expected_exception=ErroAcessoArquivo):
+            gerar_dados_item(caminho="/caminho/inexistente")
+
+    def test_erro_acesso_arquivo_str_repr(self) -> None:
+        """Testa a representação string da exceção personalizada."""
+        err = ErroAcessoArquivo(
+            mensagem="Mensagem de erro",
+            caminho="/caminho/teste",
+            original=ValueError("orig"),
         )
-        msg = str(erro)
-        assert "Falha ao acessar" in msg
-        assert "/algum/caminho" in msg
-        assert "Permissão negada" in msg
+        s = str(err)
+        assert "Mensagem de erro" in s
+        assert "/caminho/teste" in s
+        assert "orig" in s

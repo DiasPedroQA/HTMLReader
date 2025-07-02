@@ -25,9 +25,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from src.core.utils.formatadores import (
+from src.core.utils.formatadores import (  # Permissoes,
     MetadadosArquivo,
-    Permissoes,
     PermissoesDetalhadas,
     converter_tamanho,
     gerar_dados_item,
@@ -133,9 +132,7 @@ class Arquivo:
             caminho_interpretado = Path(self.caminho_arquivo)
             tamanho: int = caminho_interpretado.stat().st_size
             if tamanho > tamanho_max:
-                raise RuntimeError(
-                    f"Arquivo excede o tamanho permitido: {tamanho} bytes"
-                )
+                raise RuntimeError(f"Arquivo excede o tamanho permitido: {tamanho} bytes")
             return caminho_interpretado.read_text(encoding=encoding)
         except UnicodeDecodeError:
             logger.warning(msg=f"Falha ao decodificar {self.nome}")
@@ -223,10 +220,10 @@ class Arquivo:
             return PermissoesDetalhadas()  # type: ignore
         return permissoes
 
-    @property
-    def permissoes_usuario(self) -> Permissoes:
-        """Retorna as permissões do usuário atual sobre o arquivo."""
-        return self.permissoes_detalhadas.get("usuario", {})
+    # @property
+    # def permissoes_usuario(self) -> Permissoes:
+    #     """Retorna as permissões do usuário atual sobre o arquivo."""
+    #     return self.permissoes_detalhadas.get("usuario", {})
 
     def tem_leitura(self) -> bool:
         """
@@ -286,9 +283,7 @@ def exemplo_uso_arquivo(caminho: str | Path) -> None:
 
 if __name__ == "__main__":
     try:
-        arquivo_atual = Arquivo(
-            caminho_arquivo=Path.home() / "Downloads/Firefox/bookmarks.html"
-        )
+        arquivo_atual = Arquivo(caminho_arquivo=Path.home() / "Downloads/Firefox/bookmarks.html")
         arquivo_visual: str = arquivo_atual.to_json()
         print(f"\nDados do arquivo:\n{arquivo_visual}\n")
         conteudo: str | None = arquivo_atual.ler()

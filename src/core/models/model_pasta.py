@@ -45,9 +45,7 @@ class Pasta:
         try:
             self.caminho = Path(self.caminho)
             if not self.caminho.is_dir():
-                raise NotADirectoryError(
-                    f"Caminho não é uma pasta válida: {self.caminho}"
-                )
+                raise NotADirectoryError(f"Caminho não é uma pasta válida: {self.caminho}")
             self._carregar_metadados()
         except Exception as e:
             logger.error(msg=f"Falha ao inicializar Pasta: {e}")
@@ -134,14 +132,10 @@ class Pasta:
             Dicionário com metadados e opcionalmente o conteúdo da pasta.
         """
         # Lista de arquivos como dicionários
-        sub_arquivos: list[dict[str, object]] = [
-            sub_arquivos.to_dict() for sub_arquivos in self.arquivos
-        ]
+        sub_arquivos: list[dict[str, object]] = [sub_arquivos.to_dict() for sub_arquivos in self.arquivos]
 
         # Lista de subpastas como dicionários
-        sub_pastas: list[
-            dict[str, str | int | bool | list[dict[str, str | int | bool]]]
-        ] = [sub_pastas.to_dict() for sub_pastas in self.subpastas]
+        sub_pastas: list[dict[str, str | int | bool | list[dict[str, str | int | bool]]]] = [sub_pastas.to_dict() for sub_pastas in self.subpastas]
 
         # Base do dicionário com metadados principais
         base: dict[str, str | int | bool | list[dict]] = {
