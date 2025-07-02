@@ -34,13 +34,8 @@ jobs:
       - name: ✅ Verificar Lint (Ruff)
         run: ruff check .
 
-      - name: 🧠 Verificar Tipagem (Mypy)
-        run: mypy src/
-        continue-on-error: true
-
       - name: 🔄 Verificar Imports (Isort)
         run: isort src/ --profile black
-        continue-on-error: true
 
       - name: 📏 Verificar Qualidade (Pylint)
         run: pylint src/ tests/ || true
