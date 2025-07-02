@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 import pytest
 
-from core.controllers.sistema_controller import SistemaController
+from src.core.controllers.sistema_controller import SistemaController
 from core.models.sistema_info import SistemaInfo
 
 
