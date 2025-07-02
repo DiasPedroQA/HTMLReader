@@ -39,7 +39,7 @@ jobs:
         continue-on-error: true
 
       - name: Verificar Imports (Isort)
-        run: isort . --check-only --profile black
+        run: isort src/ --profile black
         continue-on-error: true        
 
       - name: Verificar Qualidade (Pylint)

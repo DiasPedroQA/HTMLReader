@@ -10,8 +10,8 @@ dinâmica baseada no ambiente da máquina.
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from src.core.controllers.sistema_controller import SistemaController
 from core.models.sistema_info import SistemaInfo
+from src.core.controllers.sistema_controller import SistemaController
 
 router = APIRouter(prefix="/sistema", tags=["Sistema"])
 

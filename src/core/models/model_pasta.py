@@ -18,10 +18,6 @@ from typing import Any
 
 from src.core.models.model_arquivo import Arquivo
 from src.core.utils.formatadores import (
-    # ErroAcessoArquivo,; MetadadosArquivo,; Permissoes,;
-    # PermissoesDetalhadas,; Proprietario,; Tempos,;
-    # coletar_info_basica,; coletar_permissoes,;
-    # coletar_tempos,; validar_caminho,
     converter_tamanho,
     gerar_dados_item,
 )
