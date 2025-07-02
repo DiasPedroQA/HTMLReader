@@ -11,8 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
-from app.core.controllers.sistema_controller import SistemaController
-from app.core.models.sistema_info import SistemaInfo
+from core.controllers.sistema_controller import SistemaController
+from core.models.sistema_info import SistemaInfo
 
 
 def test_controller_retorna_modelo_valido() -> None:

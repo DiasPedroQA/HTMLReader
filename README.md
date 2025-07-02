@@ -25,7 +25,7 @@ A arquitetura segue boas práticas de camadas e separação de responsabilidades
 
 ```text
 HTMLReader/
-├── app/
+├── src/
 │   ├── core/               # Lógica central da aplicação
 │   │   ├── models/         # Schemas Pydantic e modelos de dados
 │   │   └── services/       # Regras de negócio, análise e utilitários
@@ -49,7 +49,7 @@ HTMLReader/
 ```bash
 make run
 # ou
-python -m app.interfaces.gui.main_gui
+python -m src.interfaces.gui.main_gui
 ```
 
 ---
@@ -57,8 +57,8 @@ python -m app.interfaces.gui.main_gui
 ### CLI (Linha de Comando)
 
 ```bash
-python -m app.interfaces.cli.main_cli visor <CAMINHO>
-python -m app.interfaces.cli.main_cli processar <ARQUIVOS>
+python -m src.interfaces.cli.main_cli visor <CAMINHO>
+python -m src.interfaces.cli.main_cli processar <ARQUIVOS>
 ```
 
 ---
@@ -66,7 +66,7 @@ python -m app.interfaces.cli.main_cli processar <ARQUIVOS>
 ### API REST (FastAPI)
 
 ```bash
-uvicorn app.interfaces.api.main_api:app --reload
+uvicorn src.interfaces.api.main_api:src --reload
 ```
 
 Acesse: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)

@@ -32,6 +32,7 @@
         "dominio",
         "estatisticas",
         "excecao",
+        "execucao",
         "extensao",
         "extensoes",
         "fastapi",
@@ -111,17 +112,18 @@
         "**/Thumbs.db": true
     },
     "makefile.makefilePath": "Makefile",
-    "makefile.buildLog": "/home/pedro-pm-dias/AMBIENTE_CRIATIVO/HTMLReader/.logs_makefile",
+    "makefile.buildLog": ".logs_makefile",
     "terminal.integrated.env.linux": {
         "PYTHONPATH": "${workspaceFolder}/app"
     },
     "python.envFile": "${workspaceFolder}/.env",
     "github-actions.workflows.pinned.workflows": [],
-    "makefile.alwaysPostConfigure": true,
-    "makefile.alwaysPreConfigure": true,
+    "makefile.alwaysPostConfigure": false,
+    "makefile.alwaysPreConfigure": false,
     "makefile.configureOnOpen": true,
-    "makefile.loggingLevel": "Verbose",
+    "makefile.loggingLevel": "Debug",
     "editor.defaultFormatter": "ms-python.black-formatter",
     "notebook.defaultFormatter": "ms-python.black-formatter",
-    "editor.defaultFoldingRangeProvider": "ms-python.black-formatter"
+    "editor.defaultFoldingRangeProvider": "ms-python.black-formatter",
+    "makefile.buildBeforeLaunch": true
 }

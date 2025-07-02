@@ -9,8 +9,8 @@
 
 # import pytest
 
-# from app.core.controllers.arquivos_controller import ArquivosController
-# from app.core.models.model_arquivo import Arquivo
+# from src.core.controllers.arquivos_controller import ArquivosController
+# from src.core.models.model_arquivo import Arquivo
 
 
 # @pytest.fixture

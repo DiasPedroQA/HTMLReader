@@ -35,7 +35,7 @@ jobs:
         run: ruff check .
 
       - name: Verificar Tipagem (Mypy)
-        run: mypy app/
+        run: mypy src/
         continue-on-error: true
 
       - name: Verificar Imports (Isort)
@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true        
 
       - name: Verificar Qualidade (Pylint)
-        run: pylint app/ tests/ || true
+        run: pylint src/ tests/ || true
 
   test-linux:
     name: 🐧 Testes no Linux + Coverage
@@ -134,4 +134,4 @@ jobs:
       - name: Rodar Bandit
         run: |
           pip install bandit
-          bandit -r app/ -ll -ii
+          bandit -r src/ -ll -ii

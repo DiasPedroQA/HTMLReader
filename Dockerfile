@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Diretório de trabalho
-WORKDIR /app
+WORKDIR /src
 
 # Copia arquivos do projeto para o container
 COPY . .

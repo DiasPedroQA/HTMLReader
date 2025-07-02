@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from app.core.utils.formatadores import (
+from src.core.utils.formatadores import (
     ErroAcessoArquivo,
     MetadadosArquivo,
     PermissoesDetalhadas,

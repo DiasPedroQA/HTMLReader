@@ -13,8 +13,8 @@
 
 # import pytest
 
-# from app.core.models.model_arquivo import Arquivo
-# from app.core.models.model_pasta import Pasta
+# from src.core.models.model_arquivo import Arquivo
+# from src.core.models.model_pasta import Pasta
 
 
 # class TestPasta:

@@ -8,10 +8,10 @@
 
 # import pytest
 
-# from app.core.controllers.pastas_controller import PastasController
-# from app.core.models.model_arquivo import Arquivo
-# from app.core.models.model_caminho_base import CaminhoBase
-# from app.core.models.model_pasta import Pasta
+# from src.core.controllers.pastas_controller import PastasController
+# from src.core.models.model_arquivo import Arquivo
+# from src.core.models.model_caminho_base import CaminhoBase
+# from src.core.models.model_pasta import Pasta
 
 
 # @pytest.fixture()

@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.core.utils.sistema_operacional import (
+from core.utils.sistema_operacional import (
     DadosSistemaOperacional,
     SistemaOperacional,
 )

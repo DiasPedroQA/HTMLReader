@@ -10,7 +10,7 @@ RUFF := $(VENV_PATH)/bin/ruff
 MYPY := $(VENV_PATH)/bin/mypy
 ISORT := $(VENV_PATH)/bin/isort
 BLACK := $(VENV_PATH)/bin/black
-SRC := app
+SRC := src
 TESTS := tests
 
 
