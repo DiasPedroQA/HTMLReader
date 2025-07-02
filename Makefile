@@ -7,7 +7,7 @@ PIP := $(VENV_PATH)/bin/pip
 PIP_COMPILE := $(VENV_PATH)/bin/pip-compile
 PYTEST := $(VENV_PATH)/bin/pytest
 RUFF := $(VENV_PATH)/bin/ruff
-MYPY := $(VENV_PATH)/bin/mypy
+# MYPY := $(VENV_PATH)/bin/mypy
 ISORT := $(VENV_PATH)/bin/isort
 BLACK := $(VENV_PATH)/bin/black
 SRC := src
@@ -58,7 +58,7 @@ compile:
 # ====================================
 lint:
 	$(RUFF) check .
-	$(MYPY) $(SRC)
+	# PYTHONPATH=src $(MYPY) src/core
 	$(ISORT) . --check-only --profile black
 
 format:

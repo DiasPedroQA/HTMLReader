@@ -12,7 +12,11 @@
 # import pytest
 
 # from src.core.controllers.sistema_controller import SistemaController
+<<<<<<< HEAD
 # from src.core.models.sistema_info import SistemaInfo
+=======
+# from core.models.sistema_info import SistemaInfo
+>>>>>>> 8366986 (9.90-fixed-bugs)
 
 
 # def test_controller_retorna_modelo_valido() -> None:

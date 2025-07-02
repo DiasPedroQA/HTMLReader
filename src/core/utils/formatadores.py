@@ -20,7 +20,7 @@ from os import stat_result
 from pathlib import Path
 from typing import Literal, TypedDict
 
-logger: logging.Logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(name=__name__)
 
 # -------------------------------------
 # Tipos nomeados para metadados
