@@ -7,7 +7,6 @@ PIP := $(VENV_PATH)/bin/pip
 PIP_COMPILE := $(VENV_PATH)/bin/pip-compile
 PYTEST := $(VENV_PATH)/bin/pytest
 RUFF := $(VENV_PATH)/bin/ruff
-# MYPY := $(VENV_PATH)/bin/mypy
 ISORT := $(VENV_PATH)/bin/isort
 BLACK := $(VENV_PATH)/bin/black
 SRC := src
@@ -22,7 +21,7 @@ help:
 	@echo "  make venv             - Cria ambiente virtual (app-tkinter-venv)"
 	@echo "  make install          - Instala dependências"
 	@echo "  make compile          - Gera requirements*.txt via pip-tools"
-	@echo "  make lint             - Executa ruff, mypy e isort"
+	@echo "  make lint             - Executa ruff e isort"
 	@echo "  make format           - Formata com black e isort"
 	@echo "  make test             - Executa testes com pytest"
 	@echo "  make coverage         - Gera cobertura (terminal + XML)"
@@ -58,7 +57,6 @@ compile:
 # ====================================
 lint:
 	$(RUFF) check .
-	# PYTHONPATH=src $(MYPY) src/core
 	$(ISORT) . --check-only --profile black
 
 format:

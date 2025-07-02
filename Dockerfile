@@ -10,7 +10,7 @@ COPY . .
 # Instala as dependências
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
-    pip install black isort pylint mypy pytest coverage bandit flake8
+    pip install black isort pylint pytest coverage bandit flake8
 
 # Comando padrão (pode ser alterado para testes ou scripts)
 CMD ["pytest"]
