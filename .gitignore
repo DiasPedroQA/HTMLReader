@@ -105,5 +105,4 @@ celerybeat.pid
 # ========================
 # ❌ Arquivos e testes locais não versionados
 # ========================
-Z_teste.ipynb
-teste_valido.txt
+Z/
